@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Web Application Vulnerability Scanner</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin:0; padding:0;
+}
+.container {
+  max-width: 1100px;
+  margin: 30px auto;
+}
+.hero {
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 15px rgba(255,255,255,0.2);
+  margin-bottom: 15px;
+}
+.hero p {
+  font-size: 1.2rem;
+  color: #d0d0d0;
+}
+.glass-card {
+  background: #1e1e1e;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+}
+input.form-control {
+  background: #252525;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+input.form-control:focus {
+  border-color: #6decb9;
+  box-shadow: 0 0 10px rgba(109,236,185,0.5);
+}
+.btn-primary {
+  background: #3f87a6;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(63,135,166,0.5);
+}
+.btn-primary:hover {
+  background: #326f85;
+}
+section { margin-bottom: 30px; }
+.feature-box {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+}
+.feature-box h3 {
+  margin-bottom: 12px;
+  color: #fff;
+  font-size: 1.3rem;
+}
+.feature-box p {
+  color: #d0d0d0;
+  font-size: 1rem;
+}
+footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
+
+/* Section Titles */
+.section-title {
+  font-size:1.8rem;
+  color:#ffffff;
+  font-weight:600;
+  text-align:center;
+  margin-bottom:25px;
+  text-shadow:0 0 8px rgba(0,0,0,0.6);
+}
+
+/* Green-to-red line - subtle gradient bar */
+.gradient-bar {
+  height: 6px;
+  border-radius: 5px;
+  background: linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c);
+  margin: 15px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h1>Web Application Vulnerability Scanner</h1>
+    <p>Analyze your web applications for potential vulnerabilities. Easy, fast, and professional.</p>
+    <div class="gradient-bar"></div>
+  </div>
+
+  <!-- Why Use This Scanner Section -->
+  <section>
+    <h2 class="section-title">Why Use This Scanner?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-box">
+          <h3>OWASP Top 10</h3>
+          <p>Scan your website for critical vulnerabilities like SQLi, XSS, Clickjacking, and more.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <h3>Quick Results</h3>
+          <p>Instant analysis with detailed report and security score for your website.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <h3>Professional Dashboard</h3>
+          <p>View results with charts, progress bars, and solution recommendations.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <h3>Download Reports</h3>
+          <p>Export scan results as CSV to save or share your security findings easily.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <h3>Secure & Reliable</h3>
+          <p>All scanning is done safely and locally. No data is stored without your consent.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-box">
+          <h3>Easy to Use</h3>
+          <p>Simple input box to scan any website and get a professional report instantly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scan Section -->
+  <section>
+    <div class="glass-card">
+      <h2 class="section-title">Start a Scan</h2>
+      <form action="/scan" method="POST" class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+        <input type="text" name="url" class="form-control" placeholder="Enter website URL" required>
+        <button type="submit" class="btn btn-primary">Start Scan</button>
+      </form>
+      <div class="gradient-bar"></div>
+    </div>
+  </section>
+
+  <!-- Additional Highlights Section -->
+  <section>
+    <h2 class="section-title">Additional Highlights</h2>
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-5">
+        <div class="feature-box">
+          <h3>Secure Recommendations</h3>
+          <p>Only shows solutions for detected vulnerabilities with clear steps to fix.</p>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="feature-box">
+          <h3>Pie Charts & Scores</h3>
+          <p>Visual representation of detected vs safe vulnerabilities for easy analysis.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>&copy; 2025 Web Application Vulnerability Scanner | All rights reserved</footer>
+
+</body>
+</html>

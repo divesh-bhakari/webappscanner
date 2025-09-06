@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scan Results - Web Application Vulnerability Scanner</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin:0; padding:0;
+}
+.container { max-width: 1200px; margin:30px auto; }
+section { margin-bottom: 40px; }
+.glass-card {
+  background: #1e1e1e;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+}
+.section-title {
+  font-size:1.8rem;
+  font-weight:600;
+  color:#ffffff;
+  margin-bottom:20px;
+  text-align:center;
+  text-shadow:0 0 6px rgba(0,0,0,0.5);
+}
+.table th, .table td { color:#fff; vertical-align:middle; }
+.gradient-bar {
+  height: 8px;
+  border-radius: 5px;
+  background: linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c);
+  margin: 15px 0;
+}
+.btn-primary {
+  background: #3f87a6;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 25px;
+  font-weight:500;
+  color: #fff;
+  margin-top:15px;
+}
+.btn-primary:hover { background: #326f85; }
+.chart-container { width:300px; margin:auto; }
+.summary-item { font-size:1.05rem; margin-bottom:10px; }
+.emoji-green { color:#2ecc71; }
+.emoji-red { color:#e74c3c; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Section 1: Vulnerability Results & Overview -->
+<section class="glass-card">
+  <h2 class="section-title">Vulnerability Results & Overview</h2>
+  <p>You have scanned: <strong>{{ url }}</strong> | Scan Time: <strong>{{ scan_time }}</strong></p>
+  <div class="gradient-bar"></div>
+
+  <div class="row mt-3">
+    <div class="col-lg-7">
+      <h4>Vulnerability Status</h4>
+      <table class="table table-dark table-striped">
+        <thead>
+          <tr>
+            <th>Vulnerability</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vuln, status in vulnerabilities.items() %}
+          <tr>
+            <td>{{ vuln }}</td>
+            <td>
+              {% if "No" in status or "safe" in status %}
+                <span class="emoji-green">&#9989;</span> {{ status }}
+              {% else %}
+                <span class="emoji-red">&#10060;</span> {{ status }}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-lg-5 chart-container">
+      <canvas id="pieChart"></canvas>
+      <p style="text-align:center; margin-top:10px;">Detected vs Safe Vulnerabilities</p>
+    </div>
+  </div>
+</section>
+
+...
+<!-- Section 2: Scan Summary -->
+<section class="glass-card">
+  <h2 class="section-title">Scan Summary</h2>
+
+  {% if invalid %}
+    <p style="color:#e74c3c; font-weight:bold;">Invalid URL entered. Please use a valid domain (e.g., example.com, testsite.in)</p>
+  {% else %}
+  <div class="row">
+    <div class="col-md-4 summary-item">Total Vulnerabilities Detected: <strong>{{ total_detected }}</strong></div>
+    <div class="col-md-4 summary-item">Total Safe Checks Passed: <strong>{{ total_safe }}</strong></div>
+    <div class="col-md-4 summary-item">High-Risk Vulnerabilities: <strong>{{ high_risk_count }}</strong></div>
+    <div class="col-md-4 summary-item">Scanned URL: <strong>{{ url }}</strong></div>
+    <div class="col-md-4 summary-item">Scan Duration: <strong>{{ scan_duration }}</strong></div>
+    <div class="col-md-4 summary-item">Overall Security Score: 
+      <strong style="color:{% if overall_score >= 80 %}#2ecc71{% elif overall_score >=50 %}#f1c40f{% else %}#e74c3c{% endif %}">
+        {{ overall_score }}%
+      </strong>
+    </div>
+  </div>
+  {% endif %}
+  <div class="gradient-bar"></div>
+</section>
+...
+
+
+<!-- Section 3: Suggested Solutions -->
+<section class="glass-card">
+  <h2 class="section-title">Suggested Solutions</h2>
+  {% for vuln, status in vulnerabilities.items() %}
+    {% if "No" not in status and "safe" not in status %}
+      <div style="margin-bottom:25px; padding:15px; border-left:5px solid #e74c3c; background:#1a1a1a; border-radius:8px;">
+        <h5 style="color:#ff6b6b; margin-bottom:10px;">⚠ {{ vuln }}</h5>
+        
+        <!-- Show Status -->
+        <p><strong>Status:</strong> {{ status }}</p>
+        
+        <!-- Detailed Info -->
+        <p style="font-size:0.95rem; color:#bbb;">
+          <strong>Why this is a risk:</strong> {{ detailed_info[vuln] }}
+        </p>
+        
+        <!-- Suggested Fix -->
+        <p style="font-size:0.95rem; color:#9cdcfe;">
+          <strong>Suggested Fix:</strong><br>
+          {% if vuln == "SQL Injection" %}
+            • Use prepared statements (parameterized queries).<br>
+            • Apply strict input validation & whitelist-based filtering.<br>
+            • Employ ORM frameworks (e.g., SQLAlchemy, Hibernate).<br>
+            • Restrict database account permissions (least privilege).<br>
+          {% elif vuln == "Cross-Site Scripting (XSS)" %}
+            • Encode user inputs before rendering in HTML/JS.<br>
+            • Use security libraries (e.g., DOMPurify for sanitization).<br>
+            • Implement Content Security Policy (CSP).<br>
+            • Avoid inline JavaScript & dynamic HTML insertion.<br>
+          {% elif vuln == "Directory Traversal" %}
+            • Normalize and validate file paths (reject ../ sequences).<br>
+            • Restrict file access to specific whitelisted directories.<br>
+            • Disable direct user input file requests.<br>
+            • Use secure APIs instead of direct filesystem calls.<br>
+          {% elif vuln == "Clickjacking" %}
+            • Set X-Frame-Options: DENY or SAMEORIGIN in headers.<br>
+            • Use Content-Security-Policy: frame-ancestors directive.<br>
+            • Implement UI redress protections (e.g., frame busting scripts).<br>
+          {% else %}
+            • Review application code and apply secure coding practices.<br>
+            • Patch frameworks, libraries, and server software.<br>
+          {% endif %}
+        </p>
+      </div>
+    {% endif %}
+  {% endfor %}
+</section>
+
+
+<!-- Section 4: Actions -->
+<section class="glass-card text-center">
+  <button class="btn btn-primary" onclick="window.print()">Print Result</button>
+  <a href="/" class="btn btn-primary">Scan Again</a>
+</section>
+
+</div>
+
+<script>
+// Pie chart
+const ctx = document.getElementById('pieChart').getContext('2d');
+const pieChart = new Chart(ctx, {
+  type: 'pie',
+  data: {
+    labels: ['Detected', 'Safe'],
+    datasets: [{
+      data: [{{ total_detected }}, {{ total_safe }}],
+      backgroundColor: ['#e74c3c','#2ecc71'],
+      borderColor: '#121212',
+      borderWidth: 1
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#fff' } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

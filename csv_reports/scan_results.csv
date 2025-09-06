@@ -1,0 +1,9 @@
+Vulnerability,Status
+SQL Injection,No SQL Injection found
+XSS,No XSS found
+Directory Traversal,Possible Directory Traversal
+Open Redirect,No Open Redirect found
+Clickjacking,Possible Clickjacking vulnerability
+Insecure HTTP Headers,"Missing security headers: Content-Security-Policy, Strict-Transport-Security, X-Content-Type-Options"
+Unsafe HTTP Methods,HTTP Methods safe
+Robots.txt Check,No robots.txt found

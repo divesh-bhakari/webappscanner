@@ -1,0 +1,7 @@
+Vulnerability,Result
+SQL Injection,"SQL Injection test failed, SQL Injection test failed, SQL Injection test failed, SQL Injection test failed"
+XSS,"XSS test failed, XSS test failed"
+Directory Traversal,No Directory Traversal found
+Open Redirect,No Open Redirect found
+Clickjacking,Possible Clickjacking vulnerability
+Insecure HTTP Headers,"Missing security headers: Content-Security-Policy, Strict-Transport-Security, X-Content-Type-Options"
