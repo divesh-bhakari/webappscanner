@@ -1,4 +1,4 @@
-# Web Application Vulnerability Scanner
+# SecuriScan
 
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)  
 [![Flask](https://img.shields.io/badge/Flask-2.3-green.svg)](https://flask.palletsprojects.com/)
