@@ -49,20 +49,17 @@ Listed in `requirements.txt`:
 ## Cloning the Repository
 
 Open a terminal or command prompt and run:
-
-```bash
 git clone https://github.com/divesh-bhakari/webappscanner.git
 cd webappscanner
-## 🛠 Setup Instructions
+## Setup Instructions
 
 ### 1️ (Optional) Create a Virtual Environment
-```bash
 python -m venv venv
 Activate it:
-Windows :venv\Scripts\activate
-Linux/Macsource venv/bin/activate
+Windows : venv\Scripts\activate
+Linux/Macsource : venv/bin/activate
+
 ### 2️ Install Dependencies
-```bash
 pip install -r requirements.txt
 Running the Application (Local):python app.py
 Then open your browser at:http://127.0.0.1:5000/
