@@ -98,6 +98,32 @@ footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
   background: linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c);
   margin: 15px 0;
 }
+
+/* Warning Box */
+.warning-box {
+  background: #2b1a1a;
+  border: 2px solid #e74c3c;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  color: #f8d7da;
+  box-shadow: 0 0 15px rgba(231,76,60,0.3);
+}
+.warning-box h3 {
+  color: #ff6b6b;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+.warning-box ul {
+  margin: 10px 0 0 20px;
+}
+.warning-box a {
+  color: #f39c12;
+  text-decoration: none;
+}
+.warning-box a:hover {
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
@@ -155,16 +181,44 @@ footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
   </section>
 
   <!-- Scan Section -->
-  <section>
-    <div class="glass-card">
-      <h2 class="section-title">Start a Scan</h2>
-      <form action="/scan" method="POST" class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-        <input type="text" name="url" class="form-control" placeholder="Enter website URL" required>
-        <button type="submit" class="btn btn-primary">Start Scan</button>
-      </form>
-      <div class="gradient-bar"></div>
+<section>
+  <div class="glass-card">
+    <h2 class="section-title">Start a Scan</h2>
+
+    <!-- 🔴 Flash error messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-danger mt-3">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form action="/scan" method="POST" class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+      <input type="text" name="url" class="form-control" placeholder="Enter website URL" required>
+      <button type="submit" class="btn btn-primary">Start Scan</button>
+    </form>
+    <div class="gradient-bar"></div>
+
+    <!-- ⚠️ Warning Section -->
+    <div class="warning-box">
+      <h3>⚠️ Warning</h3>
+      <p>Do <strong>NOT</strong> try this scanner on random websites.  
+      Unauthorized testing may be considered illegal.</p>
+      <p>✅ Use only the following websites for testing purposes:</p>
+      <ul>
+        <li><a href="http://testphp.vulnweb.com" target="_blank">http://testphp.vulnweb.com</a></li>
+        <li><a href="http://demo.testfire.net" target="_blank">http://demo.testfire.net</a></li>
+        <li><a href="http://zero.webappsecurity.com" target="_blank">http://zero.webappsecurity.com</a></li>
+        <li><a href="https://juice-shop.herokuapp.com" target="_blank">https://juice-shop.herokuapp.com</a></li>
+        <li><a href="http://hackazon.webscantest.com" target="_blank">http://hackazon.webscantest.com</a></li>
+      </ul>
     </div>
-  </section>
+  </div>
+</section>
+
 
   <!-- Additional Highlights Section -->
   <section>

@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash, redirect, url_for
 import requests
 from datetime import datetime
 import csv
 import os
-import re
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -12,27 +11,37 @@ CSV_FOLDER = "csv_reports"
 os.makedirs(CSV_FOLDER, exist_ok=True)
 
 # --------------------------
+# Allowed testing URLs
+# --------------------------
+ALLOWED_SITES = [
+    "http://testphp.vulnweb.com",
+    "http://demo.testfire.net",
+    "http://zero.webappsecurity.com",
+    "https://juice-shop.herokuapp.com",
+    "http://hackazon.webscantest.com"
+]
+
+# --------------------------
 # URL Validation
 # --------------------------
 def is_valid_url(url):
-    pattern = re.compile(
-        r'^(https?:\/\/)?'       # http:// or https:// (optional)
-        r'([a-zA-Z0-9-]+\.)+'    # domain/subdomain
-        r'(com|in|org|net|edu|gov|io|info)$'  # valid TLDs
-    )
-    return re.match(pattern, url.strip()) is not None
+    # Ensure URL starts with http
+    if not url.startswith("http"):
+        url = "http://" + url
+    # Remove trailing slashes
+    url = url.rstrip("/")
+    # Check exact match ignoring trailing slash
+    return any(url == site.rstrip("/") for site in ALLOWED_SITES)
 
 # --------------------------
-# Vulnerability Scanners with multiple payloads
+# Vulnerability Scanners
 # --------------------------
 def sql_injection_scan(url):
     payloads = ["' OR '1'='1", "'; DROP TABLE users--", "\" OR \"1\"=\"1"]
     try:
         for payload in payloads:
             r = requests.get(url + payload, timeout=5)
-            if any(err in r.text.lower() for err in [
-                "sql syntax", "mysql", "native client", "odbc", "sql error"
-            ]):
+            if any(err in r.text.lower() for err in ["sql syntax", "mysql", "native client", "odbc", "sql error"]):
                 return "Possible SQL Injection"
     except:
         pass
@@ -121,25 +130,17 @@ def index():
 @app.route('/scan', methods=['POST'])
 def scan():
     url = request.form.get('url').strip()
+
+    # ✅ Validate URL
+    if not is_valid_url(url):
+        flash("⚠️ This tool is for educational/demo purposes only. Please use one of the authorized test websites.")
+        return redirect(url_for('index'))
+
+    # Ensure URL has http
     if not url.startswith("http"):
         url = "http://" + url
 
-    # Validate URL before scanning
-    if not is_valid_url(url.replace("http://","").replace("https://","")):
-        return render_template("result.html", 
-                               url=url,
-                               vulnerabilities={}, 
-                               detailed_info={},
-                               total_detected=0,
-                               total_safe=0,
-                               high_risk_count=0,
-                               overall_score=0,
-                               scan_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                               scan_duration="0 sec",
-                               invalid=True)
-
     scan_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
     results = {}
     detailed_info = {}
     risk_weights = {
@@ -183,7 +184,6 @@ def scan():
     total_safe = len(results) - total_detected
     high_risk_count = sum(1 for k,v in results.items() if risk_weights[k] >= 3 and "No" not in v and "safe" not in v)
 
-    # Weighted security score
     total_risk = sum(risk_weights.values())
     detected_risk = sum(risk_weights[k] for k,v in results.items() if "No" not in v and "safe" not in v)
     overall_score = round(((total_risk - detected_risk) / total_risk) * 100, 2)
@@ -197,17 +197,17 @@ def scan():
             writer.writerow([k,v])
 
     return render_template('result.html',
-                       url=url,
-                       vulnerabilities=results,
-                       detailed_info=detailed_info,
-                       total_detected=total_detected,
-                       total_safe=total_safe,
-                       high_risk_count=high_risk_count,
-                       overall_score=overall_score,
-                       scan_time=scan_time,
-                       scan_duration="~5 sec",
-                       csv_file=csv_filename,
-                       invalid=False)
+                           url=url,
+                           vulnerabilities=results,
+                           detailed_info=detailed_info,
+                           total_detected=total_detected,
+                           total_safe=total_safe,
+                           high_risk_count=high_risk_count,
+                           overall_score=overall_score,
+                           scan_time=scan_time,
+                           scan_duration="~5 sec",
+                           csv_file=csv_filename,
+                           invalid=False)
 
 if __name__ == '__main__':
     app.run(debug=True)
