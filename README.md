@@ -5,7 +5,7 @@
 
 ---
 
-## 📖 Project Description
+## Project Description
 
 The **Web Application Vulnerability Scanner** is a professional tool built using Python (Flask).  
 It allows users to scan websites for common vulnerabilities, view results in a browser-based interface, and generate reports.
@@ -15,7 +15,7 @@ It allows users to scan websites for common vulnerabilities, view results in a b
 
 ---
 
-## ⚡ Features
+##  Features
 
 - **SQL Injection (SQLi)** – Detects injectable fields in web forms.  
 - **Cross-Site Scripting (XSS)** – Detects reflected and stored XSS vulnerabilities.  
@@ -27,7 +27,7 @@ It allows users to scan websites for common vulnerabilities, view results in a b
 
 ---
 
-## ⚙️ Requirements
+##  Requirements
 
 - Python 3.10+  
 - pip (Python package manager)  
@@ -46,10 +46,23 @@ Listed in `requirements.txt`:
 
 ---
 
-## 💾 Cloning the Repository
+## Cloning the Repository
 
 Open a terminal or command prompt and run:
 
 ```bash
 git clone https://github.com/divesh-bhakari/webappscanner.git
 cd webappscanner
+## 🛠 Setup Instructions
+
+### 1️ (Optional) Create a Virtual Environment
+```bash
+python -m venv venv
+Activate it:
+Windows :venv\Scripts\activate
+Linux/Macsource venv/bin/activate
+### 2️ Install Dependencies
+```bash
+pip install -r requirements.txt
+Running the Application (Local):python app.py
+Then open your browser at:http://127.0.0.1:5000/
