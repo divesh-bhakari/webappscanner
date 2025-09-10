@@ -55,11 +55,16 @@ cd webappscanner
 
 ### 1️ (Optional) Create a Virtual Environment
 python -m venv venv
+
 Activate it:
+
 Windows : venv\Scripts\activate
+
 Linux/Macsource : venv/bin/activate
 
 ### 2️ Install Dependencies
 pip install -r requirements.txt
+
 Running the Application (Local):python app.py
+
 Then open your browser at:http://127.0.0.1:5000/
