@@ -50,3 +50,30 @@ Clone the repo:https://github.com/divesh-bhakari/webappscanner.git
 
 ```bash
 git clone https://github.com/divesh-bhakari/webappscanner.git
+
+Go into the project folder:
+
+cd webappscanner
+🛠 Setup Instructions
+1️⃣ Optional: Create a Virtual Environment
+python -m venv venv
+Activate it:
+
+Windows: venv\Scripts\activate
+
+Linux/Mac: source venv/bin/activate
+2️⃣ Install Dependencies
+pip install -r requirements.txt
+3️⃣ Running the Application
+python app.py
+Open your browser at http://127.0.0.1:5000/
+
+4️⃣ Scanning a Website
+
+Enter the target URL in the input box.
+
+Click Scan.
+
+Wait for results to appear.
+
+Save the report if required.
