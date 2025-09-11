@@ -86,14 +86,17 @@ section { margin-bottom: 40px; }
         </tbody>
       </table>
     </div>
-    <div class="col-lg-5 chart-container">
-      <canvas id="pieChart"></canvas>
-      <p style="text-align:center; margin-top:10px;">Detected vs Safe Vulnerabilities</p>
-    </div>
+    <div class="col-lg-5 chart-container text-center">
+  <canvas id="pieChart"></canvas>
+  <p style="margin-top:10px;">Detected vs Safe Vulnerabilities</p>
+
+  <!-- CSV Download Button -->
+  <a href="{{ url_for('download_csv') }}" class="btn btn-primary mt-2">Download CSV</a>
+</div>
+
   </div>
 </section>
 
-...
 <!-- Section 2: Scan Summary -->
 <section class="glass-card">
   <h2 class="section-title">Scan Summary</h2>
@@ -116,8 +119,6 @@ section { margin-bottom: 40px; }
   {% endif %}
   <div class="gradient-bar"></div>
 </section>
-...
-
 
 <!-- Section 3: Suggested Solutions -->
 <section class="glass-card">
@@ -126,16 +127,10 @@ section { margin-bottom: 40px; }
     {% if "No" not in status and "safe" not in status %}
       <div style="margin-bottom:25px; padding:15px; border-left:5px solid #e74c3c; background:#1a1a1a; border-radius:8px;">
         <h5 style="color:#ff6b6b; margin-bottom:10px;">⚠ {{ vuln }}</h5>
-        
-        <!-- Show Status -->
         <p><strong>Status:</strong> {{ status }}</p>
-        
-        <!-- Detailed Info -->
         <p style="font-size:0.95rem; color:#bbb;">
           <strong>Why this is a risk:</strong> {{ detailed_info[vuln] }}
         </p>
-        
-        <!-- Suggested Fix -->
         <p style="font-size:0.95rem; color:#9cdcfe;">
           <strong>Suggested Fix:</strong><br>
           {% if vuln == "SQL Injection" %}
@@ -143,7 +138,7 @@ section { margin-bottom: 40px; }
             • Apply strict input validation & whitelist-based filtering.<br>
             • Employ ORM frameworks (e.g., SQLAlchemy, Hibernate).<br>
             • Restrict database account permissions (least privilege).<br>
-          {% elif vuln == "Cross-Site Scripting (XSS)" %}
+          {% elif vuln == "XSS" %}
             • Encode user inputs before rendering in HTML/JS.<br>
             • Use security libraries (e.g., DOMPurify for sanitization).<br>
             • Implement Content Security Policy (CSP).<br>
@@ -153,10 +148,23 @@ section { margin-bottom: 40px; }
             • Restrict file access to specific whitelisted directories.<br>
             • Disable direct user input file requests.<br>
             • Use secure APIs instead of direct filesystem calls.<br>
+          {% elif vuln == "Open Redirect" %}
+            • Validate and sanitize all redirect parameters.<br>
+            • Avoid user-controlled URLs for redirects.<br>
+            • Implement allowlist of safe URLs.<br>
           {% elif vuln == "Clickjacking" %}
             • Set X-Frame-Options: DENY or SAMEORIGIN in headers.<br>
             • Use Content-Security-Policy: frame-ancestors directive.<br>
             • Implement UI redress protections (e.g., frame busting scripts).<br>
+          {% elif vuln == "Insecure HTTP Headers" %}
+            • Add missing security headers: CSP, HSTS, X-Content-Type-Options, X-Frame-Options, etc.<br>
+            • Configure headers correctly according to best practices.<br>
+          {% elif vuln == "Unsafe HTTP Methods" %}
+            • Disable unsafe HTTP methods (PUT, DELETE, TRACE, CONNECT, PATCH) unless required.<br>
+            • Restrict sensitive operations to authenticated users.<br>
+          {% elif vuln == "Robots.txt Check" %}
+            • Avoid exposing sensitive directories in robots.txt.<br>
+            • Use robots.txt for indexing guidance only, not for security.<br>
           {% else %}
             • Review application code and apply secure coding practices.<br>
             • Patch frameworks, libraries, and server software.<br>
@@ -166,7 +174,6 @@ section { margin-bottom: 40px; }
     {% endif %}
   {% endfor %}
 </section>
-
 
 <!-- Section 4: Actions -->
 <section class="glass-card text-center">

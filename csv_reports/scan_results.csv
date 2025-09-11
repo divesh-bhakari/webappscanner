@@ -4,6 +4,6 @@ XSS,No XSS found
 Directory Traversal,No Directory Traversal found
 Open Redirect,No Open Redirect found
 Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
-Insecure HTTP Headers,"Missing security headers: Content-Security-Policy, Strict-Transport-Security, X-Content-Type-Options"
-Unsafe HTTP Methods,"Unsafe HTTP Methods Allowed: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, PATCH"
+Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+Unsafe HTTP Methods,✅ HTTP Methods are safe
 Robots.txt Check,No robots.txt found
