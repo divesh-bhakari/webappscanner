@@ -313,12 +313,25 @@ def improved_http_method_scan(url):
 # Robots.txt
 # --------------------------
 def robots_scan(url):
+    sensitive_keywords = ["admin", "backup", "config", "test", "private", "secret"]
+
     try:
-        r = requests.get(url + "/robots.txt", timeout=5)
-        if r.status_code == 200 and "Disallow" in r.text:
-            return "robots.txt found (check for sensitive paths)"
-    except:
-        pass
+        r = requests.get(url.rstrip("/") + "/robots.txt", timeout=5)
+        if r.status_code == 200:
+            disallowed = re.findall(r"Disallow:\s*(\S+)", r.text, re.IGNORECASE)
+            
+            if disallowed:
+                flagged = [path for path in disallowed if any(key in path.lower() for key in sensitive_keywords)]
+                
+                if flagged:
+                    return f"robots.txt found 🚨 Sensitive paths exposed: {', '.join(flagged)}"
+                else:
+                    return f"robots.txt found ✅ Disallowed paths: {', '.join(disallowed)}"
+            else:
+                return "robots.txt found but no Disallow rules"
+    except requests.exceptions.RequestException:
+        return "Error fetching robots.txt"
+
     return "No robots.txt found"
 
 # --------------------------
