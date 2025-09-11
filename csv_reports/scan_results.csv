@@ -1,9 +1,9 @@
 Vulnerability,Status
 SQL Injection,No SQL Injection found
 XSS,No XSS found
-Directory Traversal,Possible Directory Traversal
+Directory Traversal,No Directory Traversal found
 Open Redirect,No Open Redirect found
-Clickjacking,Possible Clickjacking vulnerability
+Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
 Insecure HTTP Headers,"Missing security headers: Content-Security-Policy, Strict-Transport-Security, X-Content-Type-Options"
-Unsafe HTTP Methods,HTTP Methods safe
+Unsafe HTTP Methods,"Unsafe HTTP Methods Allowed: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, PATCH"
 Robots.txt Check,No robots.txt found

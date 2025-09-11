@@ -3,6 +3,8 @@ import requests
 from datetime import datetime
 import csv
 import os
+import re
+import time
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -25,82 +27,259 @@ ALLOWED_SITES = [
 # URL Validation
 # --------------------------
 def is_valid_url(url):
-    # Ensure URL starts with http
     if not url.startswith("http"):
         url = "http://" + url
-    # Remove trailing slashes
     url = url.rstrip("/")
-    # Check exact match ignoring trailing slash
     return any(url == site.rstrip("/") for site in ALLOWED_SITES)
 
 # --------------------------
-# Vulnerability Scanners
+# SQL Injection Scanner
 # --------------------------
 def sql_injection_scan(url):
-    payloads = ["' OR '1'='1", "'; DROP TABLE users--", "\" OR \"1\"=\"1"]
+    payloads = [
+        "' OR '1'='1",
+        "\" OR \"1\"=\"1",
+        "' OR '1'='1' -- ",
+        "' OR '1'='1' /*",
+        "'; DROP TABLE users--",
+        "' OR SLEEP(5)--"
+    ]
     try:
         for payload in payloads:
             r = requests.get(url + payload, timeout=5)
-            if any(err in r.text.lower() for err in ["sql syntax", "mysql", "native client", "odbc", "sql error"]):
+            if any(err in r.text.lower() for err in [
+                "sql syntax", "mysql", "native client", "odbc", "sql error"
+            ]):
                 return "Possible SQL Injection"
+            if "SLEEP" in payload:
+                start = time.time()
+                requests.get(url + payload, timeout=10)
+                end = time.time()
+                if end - start >= 5:
+                    return "Possible Time-Based SQL Injection"
     except:
         pass
     return "No SQL Injection found"
 
-def xss_scan(url):
-    payloads = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<svg/onload=alert(1)>"]
+# --------------------------
+# XSS Scanner
+# --------------------------
+def xss_scan(url, post_data=None, check_stored=False, stored_url=None):
+    payloads = [
+        "<script>alert(1)</script>",
+        "<img src=x onerror=alert(1)>",
+        "<svg/onload=alert(1)>",
+        "'\"><iframe src=javascript:alert(1)>",
+        "<body onload=alert(1)>",
+        "<details open ontoggle=alert(1)>",
+        "<math><maction xlink:href=javascript:alert(1) type=mouseover></maction></math>"
+    ]
+
+    encodings = [
+        lambda p: p,
+        lambda p: p.replace("<", "&lt;").replace(">", "&gt;"),
+        lambda p: p.replace("<", "%3C").replace(">", "%3E")
+    ]
+
     try:
         for payload in payloads:
-            r = requests.get(url + payload, timeout=5)
-            if payload in r.text:
-                return "Possible XSS vulnerability"
+            for encode in encodings:
+                test_payload = encode(payload)
+
+                # Reflected GET
+                r = requests.get(url + test_payload, timeout=5)
+                if payload in r.text or test_payload in r.text:
+                    return "Reflected XSS detected"
+
+                # POST-based XSS
+                if post_data:
+                    data = {k: test_payload for k in post_data.keys()}
+                    r_post = requests.post(url, data=data, timeout=5)
+                    if payload in r_post.text or test_payload in r_post.text:
+                        return "POST-based XSS detected"
+
+                # Stored XSS
+                if check_stored and stored_url:
+                    if post_data:
+                        data = {k: test_payload for k in post_data.keys()}
+                        requests.post(url, data=data, timeout=5)
+                    r_stored = requests.get(stored_url, timeout=5)
+                    if payload in r_stored.text or test_payload in r_stored.text:
+                        return "Stored XSS detected"
+
     except:
         pass
+
     return "No XSS found"
 
+# --------------------------
+# Directory Traversal
+# --------------------------
 def dir_traversal_scan(url):
-    payloads = ["/../", "/../../../../etc/passwd", "/..%2F..%2F..%2Fetc/passwd"]
-    try:
-        for payload in payloads:
-            r = requests.get(url + payload, timeout=5)
-            if "root:" in r.text or r.status_code == 200:
-                return "Possible Directory Traversal"
-    except:
-        pass
+    import urllib.parse
+    import time
+
+    payloads = [
+        "/../", "/../../../../etc/passwd", "/..%2F..%2F..%2Fetc/passwd",
+        "/../../../../boot.ini", "/..%2F..%2F..%2Fboot.ini",
+        "/etc/passwd", "/boot.ini",
+        "/../"*5, "/..%2F"*5
+    ]
+    indicators = ["root:", "[boot loader]", "[operating systems]"]
+    max_retries = 2
+
+    parsed = urllib.parse.urlparse(url)
+    base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+    query_params = urllib.parse.parse_qs(parsed.query)
+
+    for payload in payloads:
+        try:
+            for attempt in range(max_retries):
+                r = requests.get(base_url + payload, timeout=5)
+                if r.status_code in [200, 403, 401]:
+                    if any(ind in r.text for ind in indicators):
+                        return "Possible Directory Traversal (Path Scan)"
+                time.sleep(0.5)
+
+            if query_params:
+                for param in query_params:
+                    for attempt in range(max_retries):
+                        modified_params = query_params.copy()
+                        modified_params[param] = payload
+                        full_url = f"{base_url}?{urllib.parse.urlencode(modified_params, doseq=True)}"
+                        r = requests.get(full_url, timeout=5)
+                        if r.status_code in [200, 403, 401]:
+                            if any(ind in r.text for ind in indicators):
+                                return f"Possible Directory Traversal (Parameter: {param})"
+                        time.sleep(0.5)
+
+        except requests.exceptions.Timeout:
+            continue
+        except Exception as e:
+            print(f"[Directory Traversal Scanner] Error: {e}")
+            continue
+
     return "No Directory Traversal found"
 
+# --------------------------
+# Open Redirect
+# --------------------------
 def open_redirect_scan(url):
+    import urllib.parse
+    redirect_params = ["url", "next", "redirect", "dest", "goto", "return", "page"]
+    test_payloads = [
+        "http://malicious.com",
+        "https://malicious.com",
+        "//malicious.com",
+        "/malicious"
+    ]
+
     try:
-        r = requests.get(url + "?next=http://malicious.com", allow_redirects=False, timeout=5)
-        if r.status_code in [301, 302] and "malicious.com" in r.headers.get("Location", ""):
-            return "Possible Open Redirect"
-    except:
-        pass
+        parsed = urllib.parse.urlparse(url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+
+        for param in redirect_params:
+            for payload in test_payloads:
+                query_dict = {param: payload}
+                full_url = f"{base_url}?{urllib.parse.urlencode(query_dict)}"
+
+                try:
+                    r = requests.get(full_url, allow_redirects=False, timeout=5)
+                    location = r.headers.get("Location", "")
+                    if any(test_payload in location for test_payload in test_payloads):
+                        return f"Possible Open Redirect via parameter '{param}' -> {location}"
+
+                    r2 = requests.get(full_url, timeout=5)
+                    final_url = r2.url
+                    if any(test_payload in final_url for test_payload in test_payloads):
+                        return f"Possible Open Redirect via parameter '{param}' -> {final_url}"
+
+                except requests.exceptions.RequestException:
+                    continue
+
+    except Exception as e:
+        print(f"[Open Redirect Scanner] Error: {e}")
+
     return "No Open Redirect found"
 
+# --------------------------
+# Clickjacking 
+# --------------------------
 def clickjacking_scan(url):
     try:
         r = requests.get(url, timeout=5)
-        if 'X-Frame-Options' not in r.headers:
-            return "Possible Clickjacking vulnerability"
-    except:
-        pass
+        headers = {k.lower(): v for k, v in r.headers.items()}
+
+        x_frame = headers.get('x-frame-options', None)
+        csp = headers.get('content-security-policy', '')
+
+        vulnerable = False
+        reasons = []
+
+        if not x_frame:
+            vulnerable = True
+            reasons.append("Missing X-Frame-Options header")
+        elif x_frame.lower() not in ["deny", "sameorigin"]:
+            vulnerable = True
+            reasons.append(f"X-Frame-Options is set to '{x_frame}', which may allow framing")
+
+        if "frame-ancestors" not in csp.lower():
+            vulnerable = True
+            reasons.append("Missing CSP frame-ancestors directive")
+
+        if vulnerable:
+            return "Possible Clickjacking vulnerability: " + "; ".join(reasons)
+
+    except requests.exceptions.RequestException as e:
+        print(f"[Clickjacking Scanner] Error: {e}")
+    except Exception as e:
+        print(f"[Clickjacking Scanner] Unexpected Error: {e}")
+
     return "No Clickjacking found"
 
-def insecure_headers_scan(url):
-    missing_headers = []
-    try:
-        r = requests.get(url, timeout=5)
-        headers = r.headers
-        for h in ['Content-Security-Policy','Strict-Transport-Security','X-Content-Type-Options']:
-            if h not in headers:
-                missing_headers.append(h)
-        if missing_headers:
-            return f"Missing security headers: {', '.join(missing_headers)}"
-    except:
-        pass
-    return "All important headers present"
+# --------------------------
+# Insecure Headers (Improved)
+# --------------------------
+important_headers = {
+    "Content-Security-Policy": "Helps prevent XSS",
+    "Strict-Transport-Security": "Forces HTTPS",
+    "X-Content-Type-Options": "Prevents MIME sniffing",
+    "X-Frame-Options": "Protects against clickjacking",
+    "Referrer-Policy": "Controls referrer leakage",
+    "Permissions-Policy": "Restricts browser features",
+    "Cache-Control": "Prevents caching sensitive data"
+}
 
+def insecure_headers_scan(url):
+    result = {"missing": [], "misconfigured": [], "present": []}
+    try:
+        session = requests.Session()
+        r = session.get(url, timeout=5)
+        headers = {k.lower(): v for k, v in r.headers.items()}
+
+        for h in important_headers:
+            if h.lower() not in headers:
+                result["missing"].append(h)
+            else:
+                value = headers[h.lower()]
+                result["present"].append(f"{h}: {value}")
+
+                if h == "X-Frame-Options" and value.lower() not in ["deny", "sameorigin"]:
+                    result["misconfigured"].append(f"{h}: {value}")
+                if h == "Content-Security-Policy" and "*" in value:
+                    result["misconfigured"].append(f"{h}: {value}")
+
+        if result["missing"] or result["misconfigured"]:
+            return f"Missing: {result['missing']} | Misconfigured: {result['misconfigured']}"
+        else:
+            return "All important headers present"
+
+    except requests.exceptions.RequestException as e:
+        return f"[Error] {str(e)}"
+
+# --------------------------
+# HTTP Methods
+# --------------------------
 def http_method_scan(url):
     try:
         r = requests.options(url, timeout=5)
@@ -111,6 +290,9 @@ def http_method_scan(url):
         pass
     return "HTTP Methods safe"
 
+# --------------------------
+# Robots.txt
+# --------------------------
 def robots_scan(url):
     try:
         r = requests.get(url + "/robots.txt", timeout=5)
@@ -130,13 +312,9 @@ def index():
 @app.route('/scan', methods=['POST'])
 def scan():
     url = request.form.get('url').strip()
-
-    # ✅ Validate URL
     if not is_valid_url(url):
-        flash("⚠️ This tool is for educational/demo purposes only. Please use one of the authorized test websites.")
+        flash("⚠️ Only authorized demo sites are allowed.")
         return redirect(url_for('index'))
-
-    # Ensure URL has http
     if not url.startswith("http"):
         url = "http://" + url
 
@@ -154,7 +332,6 @@ def scan():
         "Robots.txt Check": 1
     }
 
-    # Run scans
     results['SQL Injection'] = sql_injection_scan(url)
     detailed_info['SQL Injection'] = "Injecting malicious SQL queries can bypass authentication or expose data."
 
@@ -171,7 +348,7 @@ def scan():
     detailed_info['Clickjacking'] = "Embedding site in iframe without protections can trick users into actions."
 
     results['Insecure HTTP Headers'] = insecure_headers_scan(url)
-    detailed_info['Insecure HTTP Headers'] = "Missing security headers increases attack surface."
+    detailed_info['Insecure HTTP Headers'] = "Missing/misconfigured security headers increase attack surface."
 
     results['Unsafe HTTP Methods'] = http_method_scan(url)
     detailed_info['Unsafe HTTP Methods'] = "PUT or DELETE methods may allow modification of resources."
@@ -179,7 +356,6 @@ def scan():
     results['Robots.txt Check'] = robots_scan(url)
     detailed_info['Robots.txt Check'] = "Sensitive paths in robots.txt may leak information."
 
-    # Summary metrics
     total_detected = sum(1 for v in results.values() if "No" not in v and "safe" not in v)
     total_safe = len(results) - total_detected
     high_risk_count = sum(1 for k,v in results.items() if risk_weights[k] >= 3 and "No" not in v and "safe" not in v)
@@ -188,7 +364,6 @@ def scan():
     detected_risk = sum(risk_weights[k] for k,v in results.items() if "No" not in v and "safe" not in v)
     overall_score = round(((total_risk - detected_risk) / total_risk) * 100, 2)
 
-    # Save CSV
     csv_filename = os.path.join(CSV_FOLDER, "scan_results.csv")
     with open(csv_filename, "w", newline="") as f:
         writer = csv.writer(f)
