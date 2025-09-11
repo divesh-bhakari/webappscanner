@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Too Many Requests</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f1f1f1;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 { font-size: 60px; margin-bottom: 0; }
+        p { font-size: 24px; margin-top: 0; }
+        a {
+            color: #00aaff;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>429</h1>
+    <p>Too Many Requests</p>
+    <p>{{ error }}</p>
+    <a href="{{ url_for('index') }}">Go back to home</a>
+</body>
+</html>

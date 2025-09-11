@@ -6,7 +6,13 @@ import csv
 import os
 import re
 import time
+from threading import Thread
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
+# --------------------------
+# Flask App Setup
+# --------------------------
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
@@ -14,7 +20,7 @@ CSV_FOLDER = "csv_reports"
 os.makedirs(CSV_FOLDER, exist_ok=True)
 
 # --------------------------
-# Allowed testing URLs
+# Allowed Testing URLs
 # --------------------------
 ALLOWED_SITES = [
     "http://testphp.vulnweb.com",
@@ -25,16 +31,34 @@ ALLOWED_SITES = [
 ]
 
 # --------------------------
+# Rate Limiter Setup
+# --------------------------
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["1 per hour;10 per day"]
+)
+limiter.init_app(app)  # initialize here instead of passing app in constructor
+    
+
+# --------------------------
+# Versioning Info
+# --------------------------
+APP_VERSION = "3.0.0"
+LAST_UPDATED = datetime.now()
+
+@app.context_processor
+def inject_version_info():
+    return dict(app_version=APP_VERSION, last_updated=LAST_UPDATED.strftime("%d-%m-%Y"))
+
+# --------------------------
 # URL Validation
 # --------------------------
 def validate_url(url):
     if not url.startswith(("http://", "https://")):
         url = "http://" + url
-
     parsed = urlparse(url)
     if not parsed.netloc:
         return None, "Invalid URL format"
-
     try:
         r = requests.get(url, timeout=5, allow_redirects=True)
         if r.status_code < 400:
@@ -52,14 +76,7 @@ def validate_url(url):
 # SQL Injection Scanner
 # --------------------------
 def sql_injection_scan(url):
-    payloads = [
-        "' OR '1'='1",
-        "\" OR \"1\"=\"1",
-        "' OR '1'='1' -- ",
-        "' OR '1'='1' /*",
-        "'; DROP TABLE users--",
-        "' OR SLEEP(5)--"
-    ]
+    payloads = ["' OR '1'='1", "\" OR \"1\"=\"1", "' OR '1'='1' -- ", "' OR '1'='1' /*", "'; DROP TABLE users--", "' OR SLEEP(5)--"]
     try:
         for payload in payloads:
             r = requests.get(url + payload, timeout=5)
@@ -79,20 +96,10 @@ def sql_injection_scan(url):
 # XSS Scanner
 # --------------------------
 def xss_scan(url, post_data=None, check_stored=False, stored_url=None):
-    payloads = [
-        "<script>alert(1)</script>",
-        "<img src=x onerror=alert(1)>",
-        "<svg/onload=alert(1)>",
-        "'\"><iframe src=javascript:alert(1)>",
-        "<body onload=alert(1)>",
-        "<details open ontoggle=alert(1)>",
-        "<math><maction xlink:href=javascript:alert(1) type=mouseover></maction></math>"
-    ]
-    encodings = [
-        lambda p: p,
-        lambda p: p.replace("<", "&lt;").replace(">", "&gt;"),
-        lambda p: p.replace("<", "%3C").replace(">", "%3E")
-    ]
+    payloads = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<svg/onload=alert(1)>",
+                "'\"><iframe src=javascript:alert(1)>", "<body onload=alert(1)>",
+                "<details open ontoggle=alert(1)>", "<math><maction xlink:href=javascript:alert(1) type=mouseover></maction></math>"]
+    encodings = [lambda p: p, lambda p: p.replace("<", "&lt;").replace(">", "&gt;"), lambda p: p.replace("<", "%3C").replace(">", "%3E")]
     try:
         for payload in payloads:
             for encode in encodings:
@@ -264,17 +271,6 @@ def robots_scan(url):
         return "Error fetching robots.txt"
     return "No robots.txt found"
 
-# -------------------------
-# Versioning Info
-# -------------------------
-APP_VERSION = "3.0.0"
-LAST_UPDATED = datetime.now()  # Automatically uses today's date
-@app.context_processor
-def inject_version_info():
-    # Makes version info available in all templates
-    return dict(app_version=APP_VERSION, last_updated=LAST_UPDATED.strftime("%d-%m-%Y"))
-
-
 # --------------------------
 # Flask Routes
 # --------------------------
@@ -283,30 +279,28 @@ def index():
     return render_template('index.html')
 
 @app.route('/scan', methods=['POST'])
+@limiter.limit("2 per hour")
 def scan():
     url = request.form.get('url').strip()
-    if not url.startswith("http"):
-        url = "http://" + url
+    
+    # Whitelist check
+    if urlparse(url).netloc not in [urlparse(u).netloc for u in ALLOWED_SITES]:
+        flash("⚠️ This site is not allowed for scanning.")
+        return redirect(url_for('index'))
+    
+    # Validate URL
     valid_url, error = validate_url(url)
     if not valid_url:
         flash(f"⚠️ {error}")
         return redirect(url_for('index'))
-
+    
     scan_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     results = {}
     detailed_info = {}
-    risk_weights = {
-        "SQL Injection": 3,
-        "XSS": 3,
-        "Directory Traversal": 3,
-        "Open Redirect": 2,
-        "Clickjacking": 2,
-        "Insecure HTTP Headers": 2,
-        "Unsafe HTTP Methods": 1,
-        "Robots.txt Check": 1
-    }
-
-    # Run scanners
+    risk_weights = {"SQL Injection":3,"XSS":3,"Directory Traversal":3,"Open Redirect":2,
+                    "Clickjacking":2,"Insecure HTTP Headers":2,"Unsafe HTTP Methods":1,"Robots.txt Check":1}
+    
+    # Run all scanners
     results['SQL Injection'] = sql_injection_scan(url)
     detailed_info['SQL Injection'] = "Injecting malicious SQL queries can bypass authentication or expose data."
     results['XSS'] = xss_scan(url)
@@ -323,7 +317,7 @@ def scan():
     detailed_info['Unsafe HTTP Methods'] = "PUT or DELETE methods may allow modification of resources."
     results['Robots.txt Check'] = robots_scan(url)
     detailed_info['Robots.txt Check'] = "Sensitive paths in robots.txt may leak information."
-
+    
     # Summary
     total_detected = sum(1 for v in results.values() if "No" not in v and "safe" not in v)
     total_safe = len(results) - total_detected
@@ -331,7 +325,7 @@ def scan():
     total_risk = sum(risk_weights.values())
     detected_risk = sum(risk_weights[k] for k,v in results.items() if "No" not in v and "safe" not in v)
     overall_score = round(((total_risk - detected_risk)/total_risk)*100,2)
-
+    
     # Save CSV
     csv_filename = os.path.join(CSV_FOLDER, "scan_results.csv")
     with open(csv_filename, "w", newline="", encoding="utf-8") as f:
@@ -339,7 +333,7 @@ def scan():
         writer.writerow(["Vulnerability","Status"])
         for k,v in results.items():
             writer.writerow([k,v])
-
+    
     return render_template('result.html',
                            url=url,
                            vulnerabilities=results,
@@ -364,6 +358,13 @@ def download_csv():
     else:
         flash("CSV report not found.")
         return redirect(url_for('index'))
+
+# --------------------------
+# Rate Limit Error Handler
+# --------------------------
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return render_template("429.html", error=str(e)), 429
 
 # --------------------------
 if __name__ == '__main__':
