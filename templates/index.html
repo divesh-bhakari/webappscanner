@@ -183,7 +183,20 @@ footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
 
 </div>
 
-<footer>&copy; 2025 Web Application Vulnerability Scanner | All rights reserved</footer>
+<footer style="
+    text-align: center; 
+    padding: 10px 0; 
+    background: #2c2b2b;  /* Matches page background */
+    color: #e2dddd;       /* Soft gray text */
+    font-size: 14px; 
+    border-top: 1px solid #090909; 
+    position: relative;
+    bottom: 0; 
+    width: 100%;
+">
+    &copy; 2025 Web Application Vulnerability Scanner | All rights reserved |
+    Version: {{ app_version }} | Last Updated: {{ last_updated }}
+</footer>
 
 </body>
 </html>

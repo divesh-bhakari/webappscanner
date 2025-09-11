@@ -264,6 +264,17 @@ def robots_scan(url):
         return "Error fetching robots.txt"
     return "No robots.txt found"
 
+# -------------------------
+# Versioning Info
+# -------------------------
+APP_VERSION = "3.0.0"
+LAST_UPDATED = datetime.now()  # Automatically uses today's date
+@app.context_processor
+def inject_version_info():
+    # Makes version info available in all templates
+    return dict(app_version=APP_VERSION, last_updated=LAST_UPDATED.strftime("%d-%m-%Y"))
+
+
 # --------------------------
 # Flask Routes
 # --------------------------
