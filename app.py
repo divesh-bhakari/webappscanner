@@ -55,7 +55,7 @@ def inject_version_info():
 # --------------------------
 def validate_url(url):
     if not url.startswith(("http://", "https://")):
-        url = "http://" + url
+        url = "http://" + url 
     parsed = urlparse(url)
     if not parsed.netloc:
         return None, "Invalid URL format"
