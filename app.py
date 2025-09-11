@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
 import requests
+from urllib.parse import urlparse
 from datetime import datetime
 import csv
 import os
@@ -26,11 +27,29 @@ ALLOWED_SITES = [
 # --------------------------
 # URL Validation
 # --------------------------
-def is_valid_url(url):
-    if not url.startswith("http"):
-        url = "http://" + url
-    url = url.rstrip("/")
-    return any(url == site.rstrip("/") for site in ALLOWED_SITES)
+def validate_url(url):
+    # Step 1: Normalize scheme
+    if not url.startswith(("http://", "https://")):
+        url = "http://" + url   # default to http if missing
+
+    # Step 2: Parse and check domain
+    parsed = urlparse(url)
+    if not parsed.netloc:   # No domain found
+        return None, "Invalid URL format"
+
+    # Step 3: Try connecting
+    try:
+        r = requests.get(url, timeout=5, allow_redirects=True)
+        if r.status_code < 400:   # Accepts 2xx and 3xx responses
+            return url, None
+        else:
+            return None, f"Website returned status code {r.status_code}"
+    except requests.exceptions.ConnectionError:
+        return None, "Website not reachable"
+    except requests.exceptions.Timeout:
+        return None, "Connection timed out"
+    except Exception as e:
+        return None, f"Error: {str(e)}"
 
 # --------------------------
 # SQL Injection Scanner
@@ -344,11 +363,15 @@ def index():
 @app.route('/scan', methods=['POST'])
 def scan():
     url = request.form.get('url').strip()
-    if not is_valid_url(url):
-        flash("⚠️ Only authorized demo sites are allowed.")
-        return redirect(url_for('index'))
+
+    # ✅ Validate URL first
     if not url.startswith("http"):
-        url = "http://" + url
+        url = "http://" + url  # auto-add scheme if missing
+
+    valid_url, error = validate_url(url)
+    if not valid_url:
+        flash(f"⚠️ {error}")
+        return redirect(url_for('index'))
 
     scan_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     results = {}
