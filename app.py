@@ -280,15 +280,34 @@ def insecure_headers_scan(url):
 # --------------------------
 # HTTP Methods
 # --------------------------
-def http_method_scan(url):
+def improved_http_method_scan(url):
+    risky_methods = ["PUT", "DELETE", "TRACE", "CONNECT", "PATCH"]
+    results = []
+
+    # Step 1: Check Allow header
     try:
         r = requests.options(url, timeout=5)
-        allowed = r.headers.get('Allow','')
-        if 'PUT' in allowed or 'DELETE' in allowed:
-            return f"Unsafe HTTP Methods Allowed: {allowed}"
+        allowed = r.headers.get("Allow", "")
+        if allowed:
+            for method in risky_methods:
+                if method in allowed:
+                    results.append(f"{method} listed in Allow header")
     except:
-        pass
-    return "HTTP Methods safe"
+        results.append("Could not retrieve Allow header")
+
+    # Step 2: Actively test methods
+    for method in risky_methods:
+        try:
+            test = requests.request(method, url, timeout=5)
+            if test.status_code not in [405, 501]:  # 405 = Method Not Allowed
+                results.append(f"{method} appears to be supported (Status {test.status_code})")
+        except:
+            continue
+
+    if results:
+        return "⚠️ Unsafe HTTP Methods Detected:\n" + "\n".join(results)
+    return "✅ HTTP Methods are safe"
+
 
 # --------------------------
 # Robots.txt
