@@ -35,7 +35,7 @@ ALLOWED_SITES = [
 # --------------------------
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["1 per hour;10 per day"]
+    default_limits=["3 per hour;12 per day"]
 )
 limiter.init_app(app)  # initialize here instead of passing app in constructor
     
