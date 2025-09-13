@@ -317,10 +317,10 @@ def login():
 
         if username in users_db and check_password_hash(users_db[username], password):
             session['username'] = username
-            flash("Login successful")
+            flash("Login successful", "auth")
             return redirect(url_for('index'))
         else:
-            flash("Invalid username or password")
+            flash("Invalid username or password", "auth")
             return redirect(url_for('login'))
 
     return render_template('login.html')
@@ -332,7 +332,7 @@ def login():
 @limiter.exempt 
 def logout():
     session.pop('username', None)
-    flash("Logged out successfully")
+    flash("Logged out successfully", "auth")
     return redirect(url_for('login'))
 
 # --------------------------
@@ -342,20 +342,20 @@ def logout():
 @limiter.limit("2 per hour")
 def scan():
     if not session.get('username'):
-        flash("Please login first")
+        flash("Please login first", "auth")
         return redirect(url_for('login'))
 
     url = request.form.get('url').strip()
     
     # Whitelist check
     if urlparse(url).netloc not in [urlparse(u).netloc for u in ALLOWED_SITES]:
-        flash("⚠️ This site is not allowed for scanning.")
+        flash("⚠️ This site is not allowed for scanning.", "scan")
         return redirect(url_for('index'))
     
     # Validate URL
     valid_url, error = validate_url(url)
     if not valid_url:
-        flash(f"⚠️ {error}")
+        flash(f"⚠️ {error}", "scan")
         return redirect(url_for('index'))
     
     scan_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

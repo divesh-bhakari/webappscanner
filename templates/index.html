@@ -162,7 +162,7 @@ footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
       <h2 class="section-title">Start a Scan</h2>
 
       <!-- 🔴 Flash error messages -->
-      {% with messages = get_flashed_messages() %}
+     {% with messages = get_flashed_messages(category_filter=["scan"]) %}
   {% if messages %}
     {% for message in messages %}
       <div class="alert alert-info mt-3" role="alert">
