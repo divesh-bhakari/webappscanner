@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, send_file
+from flask import Flask, render_template, request, flash, redirect, url_for, send_file, session
 import requests
 from urllib.parse import urlparse
 from datetime import datetime
@@ -9,6 +9,7 @@ import time
 from threading import Thread
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # --------------------------
 # Flask App Setup
@@ -35,10 +36,9 @@ ALLOWED_SITES = [
 # --------------------------
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["2 per hour;6 per day"]
+    default_limits=["20 per hour;60 per day"]
 )
-limiter.init_app(app)  # initialize here instead of passing app in constructor
-    
+limiter.init_app(app)
 
 # --------------------------
 # Versioning Info
@@ -51,11 +51,17 @@ def inject_version_info():
     return dict(app_version=APP_VERSION, last_updated=LAST_UPDATED.strftime("%d-%m-%Y"))
 
 # --------------------------
+# In-memory User Database (Dictionary)
+# --------------------------
+# For production, replace with real database
+users_db = {}
+
+# --------------------------
 # URL Validation
 # --------------------------
 def validate_url(url):
     if not url.startswith(("http://", "https://")):
-        url = "http://" + url 
+        url = "http://" + url
     parsed = urlparse(url)
     if not parsed.netloc:
         return None, "Invalid URL format"
@@ -73,8 +79,9 @@ def validate_url(url):
         return None, f"Error: {str(e)}"
 
 # --------------------------
-# SQL Injection Scanner
+# SCANNERS (All original code intact)
 # --------------------------
+# SQL Injection Scanner
 def sql_injection_scan(url):
     payloads = ["' OR '1'='1", "\" OR \"1\"=\"1", "' OR '1'='1' -- ", "' OR '1'='1' /*", "'; DROP TABLE users--", "' OR SLEEP(5)--"]
     try:
@@ -92,9 +99,7 @@ def sql_injection_scan(url):
         pass
     return "No SQL Injection found"
 
-# --------------------------
 # XSS Scanner
-# --------------------------
 def xss_scan(url, post_data=None, check_stored=False, stored_url=None):
     payloads = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<svg/onload=alert(1)>",
                 "'\"><iframe src=javascript:alert(1)>", "<body onload=alert(1)>",
@@ -122,9 +127,7 @@ def xss_scan(url, post_data=None, check_stored=False, stored_url=None):
         pass
     return "No XSS found"
 
-# --------------------------
 # Directory Traversal
-# --------------------------
 def dir_traversal_scan(url):
     import urllib.parse
     payloads = ["/../", "/../../../../etc/passwd", "/..%2F..%2F..%2Fetc/passwd", "/../../../../boot.ini", "/..%2F..%2F..%2Fboot.ini"]
@@ -140,9 +143,7 @@ def dir_traversal_scan(url):
             continue
     return "No Directory Traversal found"
 
-# --------------------------
 # Open Redirect
-# --------------------------
 def open_redirect_scan(url):
     import urllib.parse
     redirect_params = ["url", "next", "redirect", "dest", "goto", "return", "page"]
@@ -165,9 +166,7 @@ def open_redirect_scan(url):
         pass
     return "No Open Redirect found"
 
-# --------------------------
 # Clickjacking
-# --------------------------
 def clickjacking_scan(url):
     try:
         r = requests.get(url, timeout=5)
@@ -191,9 +190,7 @@ def clickjacking_scan(url):
         pass
     return "No Clickjacking found"
 
-# --------------------------
 # Insecure Headers
-# --------------------------
 important_headers = {
     "Content-Security-Policy": "Helps prevent XSS",
     "Strict-Transport-Security": "Forces HTTPS",
@@ -226,9 +223,7 @@ def insecure_headers_scan(url):
     except:
         return "Error fetching headers"
 
-# --------------------------
 # Unsafe HTTP Methods
-# --------------------------
 def improved_http_method_scan(url):
     risky_methods = ["PUT", "DELETE", "TRACE", "CONNECT", "PATCH"]
     results = []
@@ -251,9 +246,7 @@ def improved_http_method_scan(url):
         return "⚠️ Unsafe HTTP Methods Detected:\n" + "\n".join(results)
     return "✅ HTTP Methods are safe"
 
-# --------------------------
 # Robots.txt
-# --------------------------
 def robots_scan(url):
     sensitive_keywords = ["admin", "backup", "config", "test", "private", "secret"]
     try:
@@ -272,15 +265,86 @@ def robots_scan(url):
     return "No robots.txt found"
 
 # --------------------------
-# Flask Routes
+# FLASK ROUTES
 # --------------------------
-@app.route('/', methods=['GET'])
+
+# Home page
+@app.route('/')
 def index():
+    if not session.get('username'):
+        return redirect(url_for('login'))
     return render_template('index.html')
 
+# --------------------------
+# Registration
+# --------------------------
+@app.route('/register', methods=['GET','POST'])
+@limiter.exempt   # ADD THIS LINE
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username').strip()
+        password = request.form.get('password').strip()
+        confirm_password = request.form.get('confirm_password').strip()
+
+        if not username or not password or not confirm_password:
+            flash("Please fill all fields")
+            return redirect(url_for('register'))
+
+        if password != confirm_password:
+            flash("Passwords do not match")
+            return redirect(url_for('register'))
+
+        if username in users_db:
+            flash("Username already exists")
+            return redirect(url_for('register'))
+
+        hashed_pw = generate_password_hash(password)
+        users_db[username] = hashed_pw
+        flash("Registration successful. Please login.")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+# --------------------------
+# Login
+# --------------------------
+@app.route('/login', methods=['GET','POST'])
+@limiter.exempt   # ADD THIS LINE
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username').strip()
+        password = request.form.get('password').strip()
+
+        if username in users_db and check_password_hash(users_db[username], password):
+            session['username'] = username
+            flash("Login successful")
+            return redirect(url_for('index'))
+        else:
+            flash("Invalid username or password")
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+# --------------------------
+# Logout
+# --------------------------
+@app.route('/logout')
+@limiter.exempt 
+def logout():
+    session.pop('username', None)
+    flash("Logged out successfully")
+    return redirect(url_for('login'))
+
+# --------------------------
+# Scan Endpoint
+# --------------------------
 @app.route('/scan', methods=['POST'])
 @limiter.limit("2 per hour")
 def scan():
+    if not session.get('username'):
+        flash("Please login first")
+        return redirect(url_for('login'))
+
     url = request.form.get('url').strip()
     
     # Whitelist check
@@ -352,6 +416,10 @@ def scan():
 # --------------------------
 @app.route('/download_csv')
 def download_csv():
+    if not session.get('username'):
+        flash("Please login first")
+        return redirect(url_for('login'))
+
     csv_filename = os.path.join(CSV_FOLDER, "scan_results.csv")
     if os.path.exists(csv_filename):
         return send_file(csv_filename, mimetype='text/csv', download_name='scan_results.csv', as_attachment=True)

@@ -98,9 +98,29 @@ footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
   background: linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c);
   margin: 15px 0;
 }
+
+.navbar {
+  border-bottom: 1px solid #444;
+}
+.btn-danger {
+  background: #e74c3c;
+  border: none;
+}
+.btn-danger:hover {
+  background: #c0392b;
+}
+
 </style>
 </head>
 <body>
+  <!-- Navbar with Logout -->
+<nav class="navbar navbar-dark bg-dark px-3 d-flex justify-content-between">
+  <span class="navbar-brand mb-0 h4">Web Application Vulnerability Scanner</span>
+  {% if session.get('username') %}
+    <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
+  {% endif %}
+</nav>
+
 
 <div class="container">
 
@@ -142,17 +162,16 @@ footer { text-align:center; color:#a0a0a0; padding:20px 0; font-size:0.9rem; }
       <h2 class="section-title">Start a Scan</h2>
 
       <!-- 🔴 Flash error messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert 
-                        {% if category == 'error' %}alert-danger{% elif category == 'success' %}alert-success{% else %}alert-info{% endif %} 
-                        mt-3" role="alert">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+      {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-info mt-3" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 
       <form action="/scan" method="POST" class="d-flex flex-column flex-md-row gap-3 justify-content-center">
         <input type="text" name="url" class="form-control" placeholder="Enter website URL" required>
