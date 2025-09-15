@@ -1,0 +1,5 @@
+URL,Vulnerability,Status/Details
+http://testphp.vulnweb.com,Insecure HTTP Headers,"Error: HTTPConnectionPool(host='testphp.vulnweb.com', port=80): Read timed out. (read timeout=1)"
+http://testphp.vulnweb.com,Clickjacking,Error checking clickjacking
+http://testphp.vulnweb.com,Robots.txt Check,Error fetching robots
+http://testphp.vulnweb.com,Open Redirect,No Open Redirect found

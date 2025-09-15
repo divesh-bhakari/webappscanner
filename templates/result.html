@@ -54,8 +54,19 @@ section { margin-bottom: 40px; }
 <body>
 <div class="container">
 
+  <!-- Progress Section -->
+<section class="glass-card text-center" id="progress-section">
+  <h2 class="section-title">Scan Progress</h2>
+  <div class="progress" style="height: 30px;">
+    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+         role="progressbar" style="width: 0%">Starting...</div>
+  </div>
+  <p id="current-url" style="margin-top:10px; font-size:1.1rem; color:#bbb;"></p>
+</section>
+
+
 <!-- Section 1: Vulnerability Results & Overview -->
-<section class="glass-card">
+<section class="glass-card" id="results-section" style="display:none;">
   <h2 class="section-title">Vulnerability Results & Overview</h2>
   <p>You have scanned: <strong>{{ url }}</strong> | Scan Time: <strong>{{ scan_time }}</strong></p>
   <div class="gradient-bar"></div>
@@ -90,8 +101,9 @@ section { margin-bottom: 40px; }
   <canvas id="pieChart"></canvas>
   <p style="margin-top:10px;">Detected vs Safe Vulnerabilities</p>
 
-  <!-- CSV Download Button -->
-  <a href="{{ url_for('download_csv') }}" class="btn btn-primary mt-2">Download CSV</a>
+  <!-- anywhere in result.html where you provide CSV download -->
+<a href="{{ url_for('download_csv', job_id=job_id) }}" class="btn btn-primary">Download CSV</a>
+
 </div>
 
   </div>
@@ -204,6 +216,38 @@ const pieChart = new Chart(ctx, {
   }
 });
 </script>
+<script>
+function updateProgress() {
+    fetch("{{ url_for('scan_status', job_id=job_id) }}")
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "completed") {
+                // Finish progress
+                document.getElementById("progress-bar").style.width = "100%";
+                document.getElementById("progress-bar").innerText = "Scan Completed ✅";
+
+                // Hide progress, show results
+                document.getElementById("progress-section").style.display = "none";
+                document.getElementById("results-section").style.display = "block";
+
+            } else if (data.status === "in_progress") {
+                // Update progress bar
+                document.getElementById("progress-bar").style.width = data.progress + "%";
+                document.getElementById("progress-bar").innerText = data.progress + "%";
+
+                // Show current URL
+                if (data.current_url) {
+                    document.getElementById("current-url").innerText = "Scanning: " + data.current_url;
+                }
+            }
+        })
+        .catch(err => console.error("Progress update failed:", err));
+}
+
+// Poll every 3 seconds
+setInterval(updateProgress, 3000);
+</script>
+
 
 </body>
 </html>

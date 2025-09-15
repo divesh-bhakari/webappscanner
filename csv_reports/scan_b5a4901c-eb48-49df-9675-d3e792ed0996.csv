@@ -1,0 +1,13 @@
+URL,Vulnerability,Status/Details
+https://medora.dev/,SQL Injection,No SQL Injection found
+https://medora.dev/,XSS,No XSS found
+https://medora.dev/,Directory Traversal,No Directory Traversal found
+https://medora.dev/,Open Redirect,No Open Redirect found
+https://medora.dev/,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+https://medora.dev/,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy'] | Misconfigured: []"
+https://medora.dev/,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+PUT appears supported (Status 200)
+DELETE appears supported (Status 200)
+CONNECT appears supported (Status 400)
+PATCH appears supported (Status 200)"
+https://medora.dev/,Robots.txt Check,robots.txt found but no Disallow rules

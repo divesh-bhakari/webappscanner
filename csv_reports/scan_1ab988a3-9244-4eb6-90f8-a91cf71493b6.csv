@@ -1,0 +1,190 @@
+URL,Vulnerability,Status/Details
+http://testphp.vulnweb.com,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com,XSS,No XSS found
+http://testphp.vulnweb.com,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+http://testphp.vulnweb.com,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+http://testphp.vulnweb.com,Unsafe HTTP Methods,✅ HTTP Methods are safe
+http://testphp.vulnweb.com,Robots.txt Check,No robots.txt found
+http://testphp.vulnweb.com/index.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/index.php,XSS,No XSS found
+http://testphp.vulnweb.com/index.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/index.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/index.php,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+http://testphp.vulnweb.com/index.php,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+http://testphp.vulnweb.com/index.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+PUT appears supported (Status 200)
+DELETE appears supported (Status 200)
+PATCH appears supported (Status 200)"
+http://testphp.vulnweb.com/index.php,Robots.txt Check,No robots.txt found
+http://testphp.vulnweb.com/categories.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/categories.php,XSS,No XSS found
+http://testphp.vulnweb.com/categories.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/categories.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/categories.php,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+http://testphp.vulnweb.com/categories.php,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+http://testphp.vulnweb.com/categories.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+PUT appears supported (Status 200)
+DELETE appears supported (Status 200)
+PATCH appears supported (Status 200)"
+http://testphp.vulnweb.com/categories.php,Robots.txt Check,No robots.txt found
+http://testphp.vulnweb.com/artists.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/artists.php,XSS,No XSS found
+http://testphp.vulnweb.com/artists.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/artists.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/artists.php,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+http://testphp.vulnweb.com/artists.php,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+http://testphp.vulnweb.com/artists.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+PUT appears supported (Status 200)
+DELETE appears supported (Status 200)
+PATCH appears supported (Status 200)"
+http://testphp.vulnweb.com/artists.php,Robots.txt Check,No robots.txt found
+http://testphp.vulnweb.com/disclaimer.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/disclaimer.php,XSS,No XSS found
+http://testphp.vulnweb.com/disclaimer.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/disclaimer.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/disclaimer.php,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+http://testphp.vulnweb.com/disclaimer.php,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+http://testphp.vulnweb.com/disclaimer.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+PUT appears supported (Status 200)
+DELETE appears supported (Status 200)
+PATCH appears supported (Status 200)"
+http://testphp.vulnweb.com/disclaimer.php,Robots.txt Check,No robots.txt found
+http://testphp.vulnweb.com/cart.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/cart.php,XSS,No XSS found
+http://testphp.vulnweb.com/cart.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/cart.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/cart.php,Clickjacking,Possible Clickjacking vulnerability: Missing X-Frame-Options header; Missing CSP frame-ancestors directive
+http://testphp.vulnweb.com/cart.php,Insecure HTTP Headers,"Missing: ['Content-Security-Policy', 'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy', 'Cache-Control'] | Misconfigured: []"
+http://testphp.vulnweb.com/cart.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+PUT appears supported (Status 200)
+DELETE appears supported (Status 200)
+PATCH appears supported (Status 200)"
+http://testphp.vulnweb.com/cart.php,Robots.txt Check,No robots.txt found
+http://testphp.vulnweb.com/guestbook.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/guestbook.php,XSS,No XSS found
+http://testphp.vulnweb.com/guestbook.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/guestbook.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/guestbook.php,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/guestbook.php,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/guestbook.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/guestbook.php,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/AJAX/index.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/AJAX/index.php,XSS,No XSS found
+http://testphp.vulnweb.com/AJAX/index.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/AJAX/index.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/AJAX/index.php,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/AJAX/index.php,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/AJAX/index.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/AJAX/index.php,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/login.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/login.php,XSS,No XSS found
+http://testphp.vulnweb.com/login.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/login.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/login.php,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/login.php,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/login.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/login.php,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/userinfo.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/userinfo.php,XSS,No XSS found
+http://testphp.vulnweb.com/userinfo.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/userinfo.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/userinfo.php,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/userinfo.php,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/userinfo.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/userinfo.php,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/privacy.php,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/privacy.php,XSS,No XSS found
+http://testphp.vulnweb.com/privacy.php,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/privacy.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/privacy.php,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/privacy.php,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/privacy.php,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/privacy.php,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,XSS,No XSS found
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/Mod_Rewrite_Shop/,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/hpp/,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/hpp/,XSS,No XSS found
+http://testphp.vulnweb.com/hpp/,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/hpp/,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/hpp/,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/hpp/,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/hpp/,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/hpp/,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/listproducts.php?cat=1,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/listproducts.php?cat=1,XSS,No XSS found
+http://testphp.vulnweb.com/listproducts.php?cat=1,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/listproducts.php?cat=1,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/listproducts.php?cat=1,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/listproducts.php?cat=1,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/listproducts.php?cat=1,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/listproducts.php?cat=1,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/listproducts.php?cat=2,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/listproducts.php?cat=2,XSS,No XSS found
+http://testphp.vulnweb.com/listproducts.php?cat=2,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/listproducts.php?cat=2,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/listproducts.php?cat=2,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/listproducts.php?cat=2,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/listproducts.php?cat=2,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/listproducts.php?cat=2,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/listproducts.php?cat=3,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/listproducts.php?cat=3,XSS,No XSS found
+http://testphp.vulnweb.com/listproducts.php?cat=3,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/listproducts.php?cat=3,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/listproducts.php?cat=3,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/listproducts.php?cat=3,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/listproducts.php?cat=3,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/listproducts.php?cat=3,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/listproducts.php?cat=4,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/listproducts.php?cat=4,XSS,No XSS found
+http://testphp.vulnweb.com/listproducts.php?cat=4,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/listproducts.php?cat=4,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/listproducts.php?cat=4,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/listproducts.php?cat=4,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/listproducts.php?cat=4,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/listproducts.php?cat=4,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/artists.php?artist=1,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/artists.php?artist=1,XSS,No XSS found
+http://testphp.vulnweb.com/artists.php?artist=1,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/artists.php?artist=1,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/artists.php?artist=1,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/artists.php?artist=1,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/artists.php?artist=1,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/artists.php?artist=1,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/artists.php?artist=2,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/artists.php?artist=2,XSS,No XSS found
+http://testphp.vulnweb.com/artists.php?artist=2,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/artists.php?artist=2,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/artists.php?artist=2,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/artists.php?artist=2,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/artists.php?artist=2,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/artists.php?artist=2,Robots.txt Check,Error fetching robots.txt
+http://testphp.vulnweb.com/artists.php?artist=3,SQL Injection,No SQL Injection found
+http://testphp.vulnweb.com/artists.php?artist=3,XSS,No XSS found
+http://testphp.vulnweb.com/artists.php?artist=3,Directory Traversal,No Directory Traversal found
+http://testphp.vulnweb.com/artists.php?artist=3,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/artists.php?artist=3,Clickjacking,No Clickjacking found
+http://testphp.vulnweb.com/artists.php?artist=3,Insecure HTTP Headers,Error fetching headers
+http://testphp.vulnweb.com/artists.php?artist=3,Unsafe HTTP Methods,"⚠️ Unsafe HTTP Methods Detected:
+Could not retrieve Allow header"
+http://testphp.vulnweb.com/artists.php?artist=3,Robots.txt Check,Error fetching robots.txt
