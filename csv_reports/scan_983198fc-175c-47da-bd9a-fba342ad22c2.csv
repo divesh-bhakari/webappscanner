@@ -1,0 +1,5 @@
+URL,Vulnerability,Status/Details
+http://testphp.vulnweb.com,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com,Clickjacking,Possibly vulnerable (no X-Frame-Options)
+http://testphp.vulnweb.com,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com,Open Redirect,No Open Redirect found

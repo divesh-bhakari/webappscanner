@@ -1,0 +1,33 @@
+URL,Vulnerability,Status/Details
+http://testphp.vulnweb.com,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com,Clickjacking,Possibly vulnerable (no X-Frame-Options)
+http://testphp.vulnweb.com,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/index.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/index.php,Clickjacking,Possibly vulnerable (no X-Frame-Options)
+http://testphp.vulnweb.com/index.php,Robots.txt Check,Error fetching robots
+http://testphp.vulnweb.com/index.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/disclaimer.php,Insecure HTTP Headers,"Error: HTTPConnectionPool(host='testphp.vulnweb.com', port=80): Read timed out."
+http://testphp.vulnweb.com/disclaimer.php,Clickjacking,Error checking clickjacking
+http://testphp.vulnweb.com/disclaimer.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/disclaimer.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/categories.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/categories.php,Clickjacking,Possibly vulnerable (no X-Frame-Options)
+http://testphp.vulnweb.com/categories.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/categories.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/artists.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/artists.php,Clickjacking,Possibly vulnerable (no X-Frame-Options)
+http://testphp.vulnweb.com/artists.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/artists.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/cart.php,Insecure HTTP Headers,"Error: HTTPConnectionPool(host='testphp.vulnweb.com', port=80): Read timed out."
+http://testphp.vulnweb.com/cart.php,Clickjacking,Error checking clickjacking
+http://testphp.vulnweb.com/cart.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/cart.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/guestbook.php,Insecure HTTP Headers,"Error: HTTPConnectionPool(host='testphp.vulnweb.com', port=80): Read timed out."
+http://testphp.vulnweb.com/guestbook.php,Clickjacking,Error checking clickjacking
+http://testphp.vulnweb.com/guestbook.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/guestbook.php,Open Redirect,No Open Redirect found
+http://testphp.vulnweb.com/AJAX/index.php,Insecure HTTP Headers,"Error: HTTPConnectionPool(host='testphp.vulnweb.com', port=80): Max retries exceeded with url: /AJAX/index.php (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000002BF1608D480>, 'Connection to testphp.vulnweb.com timed out. (connect timeout=1)'))"
+http://testphp.vulnweb.com/AJAX/index.php,Clickjacking,Error checking clickjacking
+http://testphp.vulnweb.com/AJAX/index.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/AJAX/index.php,Open Redirect,No Open Redirect found

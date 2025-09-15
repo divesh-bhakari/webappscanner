@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, send_file, session, jsonify
 import requests
+from requests.adapters import HTTPAdapter, Retry
 from urllib.parse import urlparse, urljoin
 from datetime import datetime
 import csv
@@ -48,7 +49,7 @@ ALLOWED_SITES = [
 # --------------------------
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["20 per hour;60 per day"]
+    default_limits=["10 per hour"]
 )
 limiter.init_app(app)
 
@@ -317,81 +318,48 @@ def robots_scan(url):
 # --------------------------
 # Fast lightweight per-URL scanner (only fast checks)
 # --------------------------
-def fast_scan_single_url(url, session=None, timeout_short=1, timeout_mid=2):
-    """
-    Very fast, minimal scans for quick testing:
-    - Insecure headers (single GET)
-    - Clickjacking (single GET)
-    - robots.txt (single GET)
-    - Open redirect (single GET per param, no redirects)
-    Returns dict of results.
-    """
-    results = {}
+def fast_scan_single_url(url, session=None, timeout_short=5, timeout_mid=10):
     s = session or requests.Session()
 
-    # Insecure headers (fast)
+    # Set retry strategy
+    retries = Retry(total=2, backoff_factor=0.3, status_forcelist=[500,502,503,504])
+    s.mount("http://", HTTPAdapter(max_retries=retries))
+    s.mount("https://", HTTPAdapter(max_retries=retries))
+
+    results = {}
+
+    # Insecure headers
     try:
         r = s.get(url, timeout=timeout_short, allow_redirects=False)
         headers = {k.lower(): v for k, v in r.headers.items()}
         missing = []
-        mis = []
         for h in ["content-security-policy", "strict-transport-security", "x-content-type-options", "x-frame-options"]:
             if h not in headers:
                 missing.append(h)
-        if missing:
-            results["Insecure HTTP Headers"] = f"Missing headers: {missing}"
-        else:
-            results["Insecure HTTP Headers"] = "OK"
-    except Exception as e:
-        results["Insecure HTTP Headers"] = f"Error: {e}"
-
-    # Clickjacking (reuse headers if we have them)
-    try:
-        if 'x-frame-options' in headers:
-            x_frame = headers.get('x-frame-options', "")
-            if x_frame.lower() not in ["deny", "sameorigin"]:
-                results["Clickjacking"] = f"X-Frame-Options: {x_frame}"
-            else:
-                results["Clickjacking"] = "OK"
-        else:
-            # already reported missing above
-            results["Clickjacking"] = results.get("Clickjacking", "Possibly vulnerable (no X-Frame-Options)")
+        results["Insecure HTTP Headers"] = "OK" if not missing else f"Missing headers: {missing}"
     except Exception:
-        results["Clickjacking"] = "Error checking clickjacking"
+        results["Insecure HTTP Headers"] = "Could not fetch headers"
 
-    # robots.txt (fast)
+    # Clickjacking
     try:
-        base = url.rstrip('/')
-        rrobots = s.get(base + '/robots.txt', timeout=timeout_short)
+        x_frame = headers.get('x-frame-options', "")
+        csp = headers.get('content-security-policy', "")
+        if not x_frame or "frame-ancestors" not in csp.lower():
+            results["Clickjacking"] = "Possible Clickjacking (insecure headers)"
+        else:
+            results["Clickjacking"] = "OK"
+    except Exception:
+        results["Clickjacking"] = "Could not check clickjacking"
+
+    # robots.txt
+    try:
+        rrobots = s.get(url.rstrip("/") + "/robots.txt", timeout=timeout_short)
         if rrobots.status_code == 200:
-            disallowed = re.findall(r"Disallow:\s*(\S+)", rrobots.text, re.IGNORECASE)
-            results["Robots.txt Check"] = f"Found; disallow: {disallowed}" if disallowed else "Robots present, no disallow"
+            results["Robots.txt Check"] = "Found"
         else:
             results["Robots.txt Check"] = "No robots.txt"
     except Exception:
-        results["Robots.txt Check"] = "Error fetching robots"
-
-    # Open redirect (single request per param set, no redirects)
-    try:
-        parsed = urlparse(url)
-        base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
-        test_payload = "http://example.com"
-        suspect = False
-        for param in ["url", "next", "redirect", "dest"]:
-            try:
-                full = f"{base_url}?{param}={test_payload}"
-                r = s.get(full, timeout=timeout_mid, allow_redirects=False)
-                loc = r.headers.get("Location", "")
-                if test_payload in (loc or ""):
-                    suspect = True
-                    results["Open Redirect"] = f"Possible via {param}"
-                    break
-            except Exception:
-                continue
-        if not suspect:
-            results.setdefault("Open Redirect", "No Open Redirect found")
-    except Exception:
-        results["Open Redirect"] = "Error checking open redirect"
+        results["Robots.txt Check"] = "Could not fetch robots.txt"
 
     return results
 
@@ -683,7 +651,7 @@ def scan():
         db.session.commit()
 
     # start background thread (daemon)
-    t = Thread(target=crawl_and_scan_job_fast, args=(job_id, 10, 1, 0.0, 8), daemon=True)
+    t = Thread(target=crawl_and_scan_job_fast, args=(job_id, 10, 1, 0.5, 4), daemon=True)
     t.start()
 
     # show scanning page that polls status
@@ -763,7 +731,16 @@ def scan_result(job_id):
                            job_id=job_id,
                            url=job.target,
                            vulnerabilities=aggregated,
-                           detailed_info={},  # keep your descriptions or pass them here
+                           detailed_info={"SQL Injection": "Allows attackers to execute arbitrary SQL commands in your database, potentially exposing sensitive data or modifying your database.",
+    "Cross-Site Scripting (XSS)": "Allows attackers to inject malicious scripts into web pages viewed by other users, which can steal cookies, session tokens, or perform actions on behalf of the user.",
+    "Clickjacking": "Attackers can trick users into clicking on hidden buttons or links, potentially performing unwanted actions without their consent.",
+    "Directory Traversal": "Allows attackers to access files and directories outside the web root, potentially exposing sensitive system files.",
+    "Insecure Deserialization": "Allows attackers to manipulate serialized objects to execute arbitrary code or bypass authentication.",
+    "Security Misconfiguration": "Improperly configured security settings can expose sensitive data or functionality.",
+    "Sensitive Data Exposure": "Exposes sensitive information like passwords, credit card numbers, or personal data to attackers.",
+    "Broken Authentication": "Allows attackers to compromise passwords, keys, or session tokens to impersonate users.",
+    "Using Components with Known Vulnerabilities": "Outdated or vulnerable libraries can be exploited to compromise the application.",
+    "Insufficient Logging & Monitoring": "Lack of logging can allow attackers to go unnoticed, making it harder to detect or respond to attacks."},  # keep your descriptions or pass them here
                            total_detected=total_detected,
                            total_safe=total_safe,
                            high_risk_count=high_risk_count,
