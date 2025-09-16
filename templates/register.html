@@ -2,72 +2,133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register - Web Application Vulnerability Scanner</title>
+  <title>Register - Hellboy v5</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       background-color: #121212;
-      color: #e0e0e0;
+      color: #fff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 30px;
     }
     .glass-card {
-      background: #1e1e1e;
+      background: rgba(30, 30, 30, 0.9);
       border-radius: 15px;
       padding: 30px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-      width: 400px;
-      text-align: center;
+      width: 700px;
+      backdrop-filter: blur(10px);
     }
     .gradient-bar {
       height: 6px;
       border-radius: 5px;
-      background: linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c);
+      background: linear-gradient(90deg, #2ecc71, #f39c12, #e67e22, #27ae60);
+      background-size: 300% 100%;
+      animation: moveGradient 50s linear infinite;
       margin-bottom: 20px;
     }
-    .btn-primary {
-      background: #3f87a6;
-      border: none;
+    @keyframes moveGradient {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    .form-control, .form-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 10px;
-      padding: 10px 25px;
-      font-weight: 500;
       color: #fff;
-      width: 100%;
     }
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #f39c12;
+      box-shadow: 0 0 8px #f39c12;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+    .form-select {
+      color: #fff;
+    }
+    .form-select option {
+      background-color: #1e1e1e;
+      color: #fff;
+    }
+    .btn-primary {
+  background: linear-gradient(90deg, #2ecc71,#f39c12,#e67e22, #27ae60);
+  background-size: 300% 100%;
+  animation: moveGradient 50s linear infinite;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 25px;
+  font-weight: 500;
+  color: #fff;
+  width: 100%;
+}
+
+@keyframes moveGradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
     .btn-primary:hover {
-      background: #326f85;
+      opacity: 0.9;
     }
-    a {
-      color: #00aaff;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    a:hover {
-      text-decoration: underline;
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 600;
+      letter-spacing: 1px;
     }
   </style>
 </head>
 <body>
   <div class="glass-card">
     <div class="gradient-bar"></div>
-    <h2 class="mb-4">Register</h2>
+    <h2>Register</h2>
     <form method="POST" action="{{ url_for('register') }}">
-      <div class="mb-3">
-        <input type="text" name="username" class="form-control" placeholder="Choose Username" required>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <input type="text" name="username" class="form-control" placeholder="Username" required>
+        </div>
+        <div class="col-md-6">
+          <input type="email" name="email" class="form-control" placeholder="Email" required>
+        </div>
+        <div class="col-md-6">
+          <input type="text" name="profession" class="form-control" placeholder="Profession" required>
+        </div>
+        <div class="col-md-6">
+          <input type="date" name="dob" class="form-control" required>
+        </div>
+        <div class="col-md-6">
+          <input type="number" name="age" class="form-control" placeholder="Age" min="10" required>
+        </div>
+        <div class="col-md-6">
+          <input type="text" name="company" class="form-control" placeholder="Company" required>
+        </div>
+        <div class="col-md-12">
+          <select name="reason" class="form-select" required>
+            <option value="">Select Reason to use website</option>
+            <option value="study">Study</option>
+            <option value="research">Research</option>
+            <option value="vulnerability_testing">Security Testing</option>
+            <option value="project">Academic / Project</option>
+            <option value="professional_use">Professional Use</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <input type="password" name="password" class="form-control" placeholder="Password" required>
+        </div>
+        <div class="col-md-6">
+          <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+        </div>
       </div>
-      <div class="mb-3">
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
-      </div>
-      <div class="mb-3">
-        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Register</button>
+      <button type="submit" class="btn btn-primary mt-4" a href="{{ url_for('login') }}">Register</button>
     </form>
-    <p class="mt-3">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
   </div>
 </body>
 </html>

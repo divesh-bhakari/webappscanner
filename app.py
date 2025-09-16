@@ -112,7 +112,7 @@ def validate_url(url):
     if not parsed.netloc:
         return None, "Invalid URL format"
     try:
-        r = requests.get(url, timeout=2, allow_redirects=True)
+        r = requests.get(url, timeout=5, allow_redirects=True)
         if r.status_code < 400:
             return url, None
         else:
@@ -220,7 +220,7 @@ def open_redirect_scan(url):
 # Clickjacking
 def clickjacking_scan(url):
     try:
-        r = requests.get(url, timeout=2)
+        r = requests.get(url, timeout=5)
         headers = {k.lower(): v for k, v in r.headers.items()}
         x_frame = headers.get('x-frame-options', None)
         csp = headers.get('content-security-policy', '')
@@ -255,7 +255,7 @@ important_headers = {
 def insecure_headers_scan(url):
     result = {"missing": [], "misconfigured": [], "present": []}
     try:
-        r = requests.get(url, timeout=2)
+        r = requests.get(url, timeout=5)
         headers = {k.lower(): v for k, v in r.headers.items()}
         for h in important_headers:
             if h.lower() not in headers:
@@ -424,7 +424,7 @@ def scan_single_url(url):
 # --------------------------
 # Fast parallel crawler + scanner (aim: small scans in ~15s)
 # --------------------------
-def crawl_and_scan_job_fast(job_id, max_pages=10, max_depth=1, delay_between_requests=0.0, max_workers=8):
+def crawl_and_scan_job_fast(job_id, max_pages=10, max_depth=1, delay_between_requests=0.5, max_workers=8):
     """
     Fast-mode crawler: parallel fetch+scan using ThreadPoolExecutor.
     Replace your existing crawl_and_scan_job or call this for tests.
@@ -624,7 +624,7 @@ def logout():
 
 # New: start scan -> create job, start thread, render scanning page
 @app.route('/scan', methods=['POST'])
-@limiter.limit("2 per hour")
+@limiter.limit("10 per hour")
 def scan():
     if not session.get('username'):
         flash("Please login first", "auth")
@@ -731,16 +731,15 @@ def scan_result(job_id):
                            job_id=job_id,
                            url=job.target,
                            vulnerabilities=aggregated,
-                           detailed_info={"SQL Injection": "Allows attackers to execute arbitrary SQL commands in your database, potentially exposing sensitive data or modifying your database.",
-    "Cross-Site Scripting (XSS)": "Allows attackers to inject malicious scripts into web pages viewed by other users, which can steal cookies, session tokens, or perform actions on behalf of the user.",
-    "Clickjacking": "Attackers can trick users into clicking on hidden buttons or links, potentially performing unwanted actions without their consent.",
-    "Directory Traversal": "Allows attackers to access files and directories outside the web root, potentially exposing sensitive system files.",
-    "Insecure Deserialization": "Allows attackers to manipulate serialized objects to execute arbitrary code or bypass authentication.",
-    "Security Misconfiguration": "Improperly configured security settings can expose sensitive data or functionality.",
-    "Sensitive Data Exposure": "Exposes sensitive information like passwords, credit card numbers, or personal data to attackers.",
-    "Broken Authentication": "Allows attackers to compromise passwords, keys, or session tokens to impersonate users.",
-    "Using Components with Known Vulnerabilities": "Outdated or vulnerable libraries can be exploited to compromise the application.",
-    "Insufficient Logging & Monitoring": "Lack of logging can allow attackers to go unnoticed, making it harder to detect or respond to attacks."},  # keep your descriptions or pass them here
+                           detailed_info ={"SQL Injection": "No SQL Injection detected.",
+    "Cross-Site Scripting (XSS)": "No XSS detected.",
+    "Directory Traversal": "No Directory Traversal detected.",
+    "Open Redirect": "No Open Redirect detected.",
+    "Clickjacking": "Possible Clickjacking detected.",
+    "Insecure HTTP Headers": "Some headers missing.",
+    "Unsafe HTTP Methods": "No unsafe HTTP methods detected.",
+    "Robots.txt Check": "No issues with robots.txt.",},
+  # keep your descriptions or pass them here
                            total_detected=total_detected,
                            total_safe=total_safe,
                            high_risk_count=high_risk_count,

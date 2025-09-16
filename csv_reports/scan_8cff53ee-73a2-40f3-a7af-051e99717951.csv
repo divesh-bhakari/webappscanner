@@ -1,0 +1,4 @@
+URL,Vulnerability,Status/Details
+https://medora.dev/,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'x-content-type-options', 'x-frame-options']"
+https://medora.dev/,Clickjacking,Possible Clickjacking (insecure headers)
+https://medora.dev/,Robots.txt Check,Found

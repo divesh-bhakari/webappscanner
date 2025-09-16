@@ -1,0 +1,4 @@
+URL,Vulnerability,Status/Details
+http://google.com,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options']"
+http://google.com,Clickjacking,Possible Clickjacking (insecure headers)
+http://google.com,Robots.txt Check,Found

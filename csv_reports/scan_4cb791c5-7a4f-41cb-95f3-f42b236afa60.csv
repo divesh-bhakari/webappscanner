@@ -1,0 +1,4 @@
+URL,Vulnerability,Status/Details
+http://testphp.vulnweb.com,Insecure HTTP Headers,Could not fetch headers
+http://testphp.vulnweb.com,Clickjacking,Could not check clickjacking
+http://testphp.vulnweb.com,Robots.txt Check,Could not fetch robots.txt
