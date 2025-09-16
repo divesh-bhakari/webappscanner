@@ -566,7 +566,7 @@ def crawl_and_scan_job_fast(job_id, max_pages=10, max_depth=1, delay_between_req
 def index():
     # If user not logged in -> go to login page
     if not session.get('username'):
-        return redirect(url_for('login'))
+        return render_template('index.html', username="there!")
     # If logged in -> show index.html
     return render_template('index.html', username=session['username'])
 
