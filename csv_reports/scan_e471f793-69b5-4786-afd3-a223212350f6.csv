@@ -1,0 +1,4 @@
+URL,Vulnerability,Status/Details
+http://lodalassan.com,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'x-content-type-options', 'x-frame-options']"
+http://lodalassan.com,Clickjacking,Possible Clickjacking (insecure headers)
+http://lodalassan.com,Robots.txt Check,Found

@@ -558,24 +558,27 @@ def crawl_and_scan_job_fast(job_id, max_pages=10, max_depth=1, delay_between_req
                 db.session.commit()
 
 # --------------------------
-# FLASK ROUTES (login/register kept same)
+# FLASK ROUTES (Login/Register + Redirect Logic)
 # --------------------------
 
-# Home page
+# Home page (Index)
 @app.route('/')
 def index():
+    # If user not logged in -> go to login page
     if not session.get('username'):
         return redirect(url_for('login'))
-    return render_template('index.html')
+    # If logged in -> show index.html
+    return render_template('index.html', username=session['username'])
+
 
 # Registration
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['GET', 'POST'])
 @limiter.exempt
 def register():
     if request.method == 'POST':
-        username = request.form.get('username').strip()
-        password = request.form.get('password').strip()
-        confirm_password = request.form.get('confirm_password').strip()
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
 
         if not username or not password or not confirm_password:
             flash("Please fill all fields")
@@ -596,49 +599,27 @@ def register():
 
     return render_template('register.html')
 
-# Login
-@app.route('/login', methods=['GET','POST'])
-@limiter.exempt
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username').strip()
-        password = request.form.get('password').strip()
-
-        if username in users_db and check_password_hash(users_db[username], password):
-            session['username'] = username
-            flash("Login successful", "auth")
-            return redirect(url_for('index'))
-        else:
-            flash("Invalid username or password", "auth")
-            return redirect(url_for('login'))
-
-    return render_template('login.html')
-
-# Logout
-@app.route('/logout')
-@limiter.exempt
-def logout():
-    session.pop('username', None)
-    flash("Logged out successfully", "auth")
-    return redirect(url_for('login'))
-
-# New: start scan -> create job, start thread, render scanning page
-@app.route('/scan', methods=['POST'])
+# Start scan (accept GET for safe redirects and POST for form submission)
+@app.route('/scan', methods=['GET', 'POST'])
 @limiter.limit("10 per hour")
 def scan():
+    # If not logged in, force login
     if not session.get('username'):
         flash("Please login first", "auth")
         return redirect(url_for('login'))
 
-    url = request.form.get('url').strip()
+    # If GET, just redirect to index (or optionally show a small form)
+    if request.method == 'GET':
+        return redirect(url_for('index'))
 
-    # Validate URL
+    # POST: start a new scan job
+    url = request.form.get('url', '').strip()
     valid_url, error = validate_url(url)
     if not valid_url:
         flash(f"⚠️ {error}", "scan")
         return redirect(url_for('index'))
 
-    # Optional whitelist enforcement (commented out by default)
+    # Optional: enforce allowed sites (uncomment and adapt if needed)
     # if urlparse(valid_url).netloc not in [urlparse(u).netloc for u in ALLOWED_SITES]:
     #     flash("⚠️ This site is not allowed for scanning.", "scan")
     #     return redirect(url_for('index'))
@@ -650,12 +631,44 @@ def scan():
         db.session.add(job)
         db.session.commit()
 
-    # start background thread (daemon)
-    t = Thread(target=crawl_and_scan_job_fast, args=(job_id, 10, 1, 0.5, 4), daemon=True)
+    # start background thread (daemon) using your fast crawl/scan
+    t = Thread(target=crawl_and_scan_job_fast, args=(job_id, 10, 1, 0.5, 8), daemon=True)
     t.start()
 
-    # show scanning page that polls status
+    # render scanning page that polls status
     return render_template('scanning.html', job_id=job_id, target=valid_url)
+
+# Login
+@app.route('/login', methods=['GET', 'POST'])
+@limiter.exempt
+def login():
+    # If already logged in, go directly to home
+    if session.get('username'):
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+
+        if username in users_db and check_password_hash(users_db[username], password):
+            session['username'] = username
+            flash("Login successful", "auth")
+            return redirect(url_for('index'))
+        else:
+            flash("Invalid username or password", "auth")
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+
+# Logout
+@app.route('/logout')
+@limiter.exempt
+def logout():
+    session.pop('username', None)
+    flash("Logged out successfully", "auth")
+    return redirect(url_for('login'))
+
 
 # --------------------------
 # Scan Status Endpoint
