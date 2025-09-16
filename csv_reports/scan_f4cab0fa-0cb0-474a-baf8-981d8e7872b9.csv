@@ -1,0 +1,25 @@
+URL,Vulnerability,Status/Details
+http://testphp.vulnweb.com,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/index.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/index.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/index.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/disclaimer.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/disclaimer.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/disclaimer.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/artists.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/artists.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/artists.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/categories.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/categories.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/categories.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/cart.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/cart.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/cart.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/guestbook.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/guestbook.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/guestbook.php,Robots.txt Check,No robots.txt
+http://testphp.vulnweb.com/AJAX/index.php,Insecure HTTP Headers,"Missing headers: ['content-security-policy', 'strict-transport-security', 'x-content-type-options', 'x-frame-options']"
+http://testphp.vulnweb.com/AJAX/index.php,Clickjacking,Possible Clickjacking (insecure headers)
+http://testphp.vulnweb.com/AJAX/index.php,Robots.txt Check,No robots.txt
