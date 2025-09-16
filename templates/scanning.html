@@ -11,11 +11,14 @@
       font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin:0;
       padding:0;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
     }
     .container {
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 30px;
+      max-width: 800px;
+      margin:auto;
+      padding: 40px;
       background: #1e1e1e;
       border-radius: 15px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.6);
@@ -24,7 +27,7 @@
     h2 {
       color:#ffffff;
       text-shadow:0 0 12px rgba(255,255,255,0.2);
-      margin-bottom:15px;
+      margin-bottom:20px;
     }
     p.target {
       color:#d0d0d0;
@@ -34,35 +37,35 @@
     #scan-bar {
       width:100%;
       background:#2b2b2b;
-      height:26px;
-      border-radius:6px;
+      height:28px;
+      border-radius:8px;
       overflow:hidden;
-      margin-bottom:12px;
+      margin-bottom:15px;
     }
     #scan-progress {
       width:0%;
       height:100%;
       background: linear-gradient(to right, #2ecc71, #f1c40f, #e67e22, #e74c3c);
-      transition: width 0.5s;
+      transition: width 0.5s ease-in-out;
     }
     #scan-text {
-      font-size:15px;
+      font-size:16px;
       color:#cfcfcf;
-      margin-top:12px;
+      margin-top:15px;
     }
     footer {
       text-align:center;
       color:#a0a0a0;
-      padding:20px 0;
+      padding:15px 0;
       font-size:0.85rem;
-      margin-top:30px;
+      margin-top:auto;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h2>Scanning in Progress</h2>
+    <h2>🔍 Scanning in Progress</h2>
     <p class="target">Target: {{ target }}</p>
 
     <div id="scan-bar"><div id="scan-progress"></div></div>
@@ -90,13 +93,13 @@
       const percent = (j.progress ?? j.percent) || 0;
       progressEl.style.width = Math.min(100, percent) + '%';
 
-      textEl.innerText = (j.status || '') + ' — Scanning ' + (j.current_url || '');
+      textEl.innerText = (j.status || '') + (j.current_url ? ' — Scanning ' + j.current_url : '');
 
       if (j.status === 'finished') {
         setTimeout(()=>{ window.location = `/scan_result/${jobId}`; }, 600);
         return;
       } else if (j.status === 'failed') {
-        textEl.innerText = 'Scan failed. See results.';
+        textEl.innerText = 'Scan failed. Redirecting...';
         setTimeout(()=>{ window.location = `/scan_result/${jobId}`; }, 800);
         return;
       }
