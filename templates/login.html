@@ -15,7 +15,23 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      flex-direction: column;
     }
+
+    /* Header above login card */
+    .hero-text {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .hero-text h1 {
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    .hero-text p {
+      color: #bbb;
+      font-size: 0.95rem;
+    }
+
     .glass-card {
       background: rgba(30, 30, 30, 0.85);
       border-radius: 15px;
@@ -24,7 +40,13 @@
       width: 400px;
       text-align: center;
       backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+    .glass-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+    }
+
     .gradient-bar {
       height: 6px;
       border-radius: 5px;
@@ -37,17 +59,20 @@
       0% { background-position: 0% 50%; }
       100% { background-position: 100% 50%; }
     }
+
     .form-control {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 10px;
       color: #fff;
+      transition: all 0.3s ease;
     }
     .form-control:focus {
       border-color: #2ecc71;
-      box-shadow: 0 0 8px #2ecc71;
+      box-shadow: 0 0 10px #2ecc71;
       background: rgba(255,255,255,0.08);
     }
+
     .btn-primary {
       background: linear-gradient(90deg, #2ecc71, #f39c12);
       border: none;
@@ -56,10 +81,13 @@
       font-weight: 500;
       color: #fff;
       width: 100%;
+      transition: transform 0.2s ease, opacity 0.3s ease;
     }
     .btn-primary:hover {
       opacity: 0.9;
+      transform: scale(1.02);
     }
+
     a {
       color: #f39c12;
       text-decoration: none;
@@ -68,9 +96,24 @@
     a:hover {
       text-decoration: underline;
     }
+
+    /* Accent line like index.html */
+    .accent-line {
+      width: 80%;
+      height: 3px;
+      margin: 15px auto 25px auto;
+      background: linear-gradient(90deg, #ff6a00, #00ff88);
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
+  <div class="hero-text">
+    <h1>Welcome Back</h1>
+    <p>Login to access your vulnerability scanner dashboard</p>
+    <div class="accent-line"></div>
+  </div>
+
   <div class="glass-card">
     <div class="gradient-bar"></div>
     <h2 class="mb-4">Login</h2>
