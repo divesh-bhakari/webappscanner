@@ -69,10 +69,13 @@ body {
 .suggestion-box p { color:#bbb; font-size:0.95rem; }
 .suggestion-box .fix { color:#9cdcfe; }
 
+/* Hide printable area by default */
+#printableArea { display: none; }
+
 /* Print-specific styles */
 @media print {
   body * { visibility: hidden; }
-  #printableArea, #printableArea * { visibility: visible; }
+  #printableArea, #printableArea * { visibility: visible; display: block; }
   #printableArea { position: absolute; left: 0; top: 0; width: 100%; color:#000; background:#fff; padding: 20px; }
   #printableArea h2, #printableArea h3, #printableArea h4 { color: #000; }
   #printableArea p, #printableArea li { color: #000; font-size: 12pt; }
