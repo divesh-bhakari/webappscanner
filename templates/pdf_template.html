@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scan Result PDF</title>
+<style>
+body { font-family: 'Segoe UI', sans-serif; color: #111; margin: 2rem; }
+h1 { text-align: center; font-size: 1.8rem; margin-bottom: 1rem; }
+h2 { font-size: 1.2rem; margin-top: 1.2rem; color: #222; }
+p { margin: 0.3rem 0; font-size: 0.95rem; }
+.section { margin-bottom: 1.5rem; padding: 1rem; border-left: 4px solid #2ecc71; background: #f8f8f8; border-radius:5px; }
+.status-ok { color: #2ecc71; font-weight:bold; }
+.status-fail { color: #e74c3c; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<h1>Web Application Vulnerability Scanner Report</h1>
+
+<div class="section">
+  <h2>Scan Overview</h2>
+  <p><strong>URL:</strong> {{ url }}</p>
+  <p><strong>Scan Time:</strong> {{ scan_time }}</p>
+  <p><strong>Scan Duration:</strong> {{ scan_duration }}</p>
+  <p><strong>Security Score:</strong> {{ overall_score }}%</p>
+  <p><strong>Total Vulnerabilities:</strong> {{ total_detected }}</p>
+  <p><strong>Safe Checks:</strong> {{ total_safe }}</p>
+  <p><strong>High Risk:</strong> {{ high_risk_count }}</p>
+</div>
+
+<div class="section">
+  <h2>Detected Issues</h2>
+  {% for vuln, status in vulnerabilities.items() %}
+    {% if "No" not in status and "safe" not in status %}
+      <p><strong>{{ vuln }}:</strong> <span class="status-fail">{{ status }}</span></p>
+      <p><em>Details:</em> {{ detailed_info[vuln] }}</p>
+    {% endif %}
+  {% endfor %}
+  {% if total_detected == 0 %}
+    <p class="status-ok">No critical vulnerabilities detected. Your site looks safe!</p>
+  {% endif %}
+</div>
+
+</body>
+</html>
