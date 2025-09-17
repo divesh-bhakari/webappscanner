@@ -25,6 +25,18 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
+# reCAPTCHA keys
+app.config['RECAPTCHA_SITE_KEY'] = os.environ.get(
+    'RECAPTCHA_SITE_KEY',
+    '6LdZHcwrAAAAAFfxG_HURm11JWmkdesh9IhysbOY'
+)
+app.config['RECAPTCHA_SECRET_KEY'] = os.environ.get(
+    'RECAPTCHA_SECRET_KEY',
+    '6LdZHcwrAAAAAE8gmIF2obj0f5QecqXqLAP6c7Aw'
+)
+
+
+
 # DB (SQLite) - simple local persistence for jobs/results
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///hellboy_jobs.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -650,6 +662,27 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
 
+        # 1) Grab the reCAPTCHA token sent by the form
+        recaptcha_token = request.form.get('g-recaptcha-response')
+
+        # 2) Verify the token with Google
+        payload = {
+            'secret': app.config['RECAPTCHA_SECRET_KEY'],
+            'response': recaptcha_token,
+            'remoteip': request.remote_addr
+        }
+        try:
+            r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload, timeout=5)
+            result = r.json()
+        except Exception as e:
+            flash("Error verifying reCAPTCHA. Please try again.", "auth")
+            return redirect(url_for('login'))
+
+        if not result.get("success"):
+            flash("reCAPTCHA verification failed. Please try again.", "auth")
+            return redirect(url_for('login'))
+
+        # 3) If reCAPTCHA passed, continue with your login check
         if username in users_db and check_password_hash(users_db[username], password):
             session['username'] = username
             flash("Login successful", "auth")
@@ -658,8 +691,8 @@ def login():
             flash("Invalid username or password", "auth")
             return redirect(url_for('login'))
 
-    return render_template('login.html')
-
+    # GET request -> show login page
+    return render_template("login.html", recaptcha_site_key=app.config['RECAPTCHA_SITE_KEY'])
 
 # Logout
 @app.route('/logout')
