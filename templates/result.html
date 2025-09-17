@@ -68,6 +68,16 @@ body {
 .suggestion-box h5 { color:#ff8c42; margin-bottom:10px; }
 .suggestion-box p { color:#bbb; font-size:0.95rem; }
 .suggestion-box .fix { color:#9cdcfe; }
+
+/* Print-specific styles */
+@media print {
+  body * { visibility: hidden; }
+  #printableArea, #printableArea * { visibility: visible; }
+  #printableArea { position: absolute; left: 0; top: 0; width: 100%; color:#000; background:#fff; padding: 20px; }
+  #printableArea h2, #printableArea h3, #printableArea h4 { color: #000; }
+  #printableArea p, #printableArea li { color: #000; font-size: 12pt; }
+  #printableArea ul { padding-left: 20px; }
+}
 </style>
 </head>
 <body>
@@ -191,8 +201,59 @@ body {
     {% endfor %}
   </section>
 
- <!-- Actions --> <section class="glass-card text-center"> <button class="btn btn-primary" onclick="window.print()">Print Result</button> <a href="/" class="btn btn-primary">Scan Again</a> </section>
+ <!-- Actions -->
+ <section class="glass-card text-center">
+   <button class="btn btn-primary" onclick="printReport()">Print Result</button>
+   <a href="/" class="btn btn-primary">Scan Again</a>
+ </section>
 
+</div>
+
+<!-- Hidden print-friendly content -->
+<div id="printableArea">
+  <h2>Hellboy v5 - Scan Report</h2>
+  <p><strong>Scanned URL:</strong> {{ url }}</p>
+  <p><strong>Scan Time:</strong> {{ scan_time }}</p>
+  <p><strong>Total Vulnerabilities:</strong> {{ total_detected }}</p>
+  <p><strong>Safe Checks:</strong> {{ total_safe }}</p>
+  <p><strong>High-Risk Vulnerabilities:</strong> {{ high_risk_count }}</p>
+  <p><strong>Scan Duration:</strong> {{ scan_duration }}</p>
+  <p><strong>Security Score:</strong> {{ overall_score }}%</p>
+
+  <h3>Suggested Fixes:</h3>
+  {% for vuln, status in vulnerabilities.items() %}
+    {% if "No" not in status and "safe" not in status %}
+      <h4>{{ vuln }}</h4>
+      <p><strong>Why this is a risk:</strong> {{ detailed_info[vuln] }}</p>
+      <ul>
+        {% if vuln == "SQL Injection" %}
+          <li>Use prepared statements (parameterized queries).</li>
+          <li>Apply strict input validation & whitelist-based filtering.</li>
+          <li>Use ORM frameworks.</li>
+          <li>Restrict database account permissions.</li>
+        {% elif vuln == "XSS" %}
+          <li>Encode user inputs before rendering.</li>
+          <li>Use DOMPurify or CSP.</li>
+          <li>Avoid inline JS.</li>
+        {% elif vuln == "Directory Traversal" %}
+          <li>Validate file paths.</li>
+          <li>Restrict file access.</li>
+        {% elif vuln == "Open Redirect" %}
+          <li>Sanitize redirect parameters.</li>
+        {% elif vuln == "Clickjacking" %}
+          <li>X-Frame-Options: DENY or SAMEORIGIN.</li>
+        {% elif vuln == "Insecure HTTP Headers" %}
+          <li>Add CSP, HSTS, X-Frame-Options.</li>
+        {% elif vuln == "Unsafe HTTP Methods" %}
+          <li>Disable unsafe HTTP methods.</li>
+        {% elif vuln == "Robots.txt Check" %}
+          <li>Avoid exposing sensitive directories.</li>
+        {% else %}
+          <li>Apply secure coding & patch libraries.</li>
+        {% endif %}
+      </ul>
+    {% endif %}
+  {% endfor %}
 </div>
 
 <script>
@@ -213,6 +274,11 @@ const pieChart = new Chart(ctx, {
     plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } }
   }
 });
+
+// Print function
+function printReport() {
+  window.print();
+}
 </script>
 </body>
 </html>
