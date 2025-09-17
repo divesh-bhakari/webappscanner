@@ -390,7 +390,7 @@ def fast_scan_single_url(url, session=None, timeout_short=5, timeout_mid=10):
     try:
         rrobots = s.get(url.rstrip("/") + "/robots.txt", timeout=timeout_short)
         if rrobots.status_code == 200:
-            results["Robots.txt Check"] = "Found"
+            results["Robots.txt Check"] = "No robots.txt"
         else:
             results["Robots.txt Check"] = "No robots.txt"
     except Exception:
