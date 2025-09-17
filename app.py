@@ -14,7 +14,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
+from flask import make_response, render_template
+from weasyprint import HTML
+import io
+import pdfkit
 
 # persistent DB
 from flask_sqlalchemy import SQLAlchemy
@@ -698,6 +701,7 @@ def logout():
     session.pop('username', None)
     flash("Logged out successfully", "auth")
     return redirect(url_for('login'))
+
 
 
 # --------------------------
