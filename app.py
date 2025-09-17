@@ -802,19 +802,107 @@ def scan_result(job_id):
                            csv_file=csv_filename,
                            invalid=False)
 
-# Download CSV per job
+# Download CSV per job (organized)
 @app.route('/download_csv/<job_id>')
 def download_csv(job_id):
     if not session.get('username'):
         flash("Please login first")
         return redirect(url_for('login'))
 
-    csv_filename = os.path.join(CSV_FOLDER, f"scan_{job_id}.csv")
-    if os.path.exists(csv_filename):
-        return send_file(csv_filename, mimetype='text/csv', download_name=f'scan_{job_id}.csv', as_attachment=True)
-    else:
-        flash("CSV report not found.")
+    job = ScanJob.query.get(job_id)
+    if not job:
+        flash("Job not found")
         return redirect(url_for('index'))
+
+    csv_filename = os.path.join(CSV_FOLDER, f"scan_{job_id}.csv")
+
+    # Organize CSV content
+    vuln_names = ["SQL Injection","Cross-Site Scripting (XSS)","Directory Traversal",
+                  "Open Redirect","Clickjacking","Insecure HTTP Headers",
+                  "Unsafe HTTP Methods","Robots.txt Check"]
+
+    detailed_info = {
+        "SQL Injection": "No SQL Injection detected.",
+        "Cross-Site Scripting (XSS)": "No XSS detected.",
+        "Directory Traversal": "No Directory Traversal detected.",
+        "Open Redirect": "No Open Redirect detected.",
+        "Clickjacking": "Possible Clickjacking detected.",
+        "Insecure HTTP Headers": "Some headers missing.",
+        "Unsafe HTTP Methods": "No unsafe HTTP methods detected.",
+        "Robots.txt Check": "No issues with robots.txt.",
+    }
+
+    findings = {}
+    try:
+        if job.message:
+            findings = json.loads(job.message)
+    except Exception:
+        findings = {"error": "Could not parse findings"}
+
+    aggregated = {}
+    for vn in vuln_names:
+        aggregated[vn] = f"No {vn}"
+
+    for u, resd in findings.items():
+        for k,v in resd.items():
+            if isinstance(v,str) and ("No " in v or "safe" in v.lower() or "All important headers present" in v):
+                continue
+            aggregated[k] = v
+
+    # Prepare CSV rows
+    rows = []
+    for vn in vuln_names:
+        rows.append({
+            "Vulnerability": vn,
+            "Result": aggregated.get(vn, "N/A"),
+            "Details": detailed_info.get(vn, "")
+        })
+
+    # Add summary row
+    total_detected = sum(1 for v in aggregated.values() if isinstance(v,str) and ("No " not in v and "safe" not in v.lower()))
+    total_safe = len(aggregated) - total_detected
+    rows.append({
+        "Vulnerability": "TOTAL SAFE",
+        "Result": total_safe,
+        "Details": ""
+    })
+    rows.append({
+        "Vulnerability": "TOTAL DETECTED",
+        "Result": total_detected,
+        "Details": ""
+    })
+    rows.append({
+        "Vulnerability": "Scan Time",
+        "Result": job.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "Details": ""
+    })
+    if getattr(job, 'finished_at', None):
+        duration_seconds = (job.finished_at - job.created_at).total_seconds()
+        hours, remainder = divmod(duration_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        scan_duration = f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
+    else:
+        scan_duration = "Running..."
+    rows.append({
+        "Vulnerability": "Scan Duration",
+        "Result": scan_duration,
+        "Details": ""
+    })
+    rows.append({
+        "Vulnerability": "Target URL",
+        "Result": job.target,
+        "Details": ""
+    })
+
+    # Write CSV
+    with open(csv_filename, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ["Vulnerability", "Result", "Details"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    return send_file(csv_filename, mimetype='text/csv', download_name=f'scan_{job_id}.csv', as_attachment=True)
+
 
 # Rate Limit Error Handler
 @app.errorhandler(429)
