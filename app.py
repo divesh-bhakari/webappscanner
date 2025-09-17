@@ -311,23 +311,7 @@ def improved_http_method_scan(url):
         return "⚠️ Unsafe HTTP Methods Detected:\n" + "\n".join(results)
     return "✅ HTTP Methods are safe"
 
-# Robots.txt
-def robots_scan(url):
-    sensitive_keywords = ["admin", "backup", "config", "test", "private", "secret"]
-    try:
-        r = requests.get(url.rstrip("/") + "/robots.txt", timeout=5)
-        if r.status_code == 200:
-            disallowed = re.findall(r"Disallow:\s*(\S+)", r.text, re.IGNORECASE)
-            flagged = [p for p in disallowed if any(k in p.lower() for k in sensitive_keywords)]
-            if flagged:
-                return f"robots.txt found 🚨 Sensitive paths exposed: {', '.join(flagged)}"
-            elif disallowed:
-                return f"robots.txt found ✅ Disallowed paths: {', '.join(disallowed)}"
-            else:
-                return "robots.txt found but no Disallow rules"
-    except:
-        return "Error fetching robots.txt"
-    return "No robots.txt found"
+
 
 # --------------------------
 # Fast lightweight per-URL scanner (only fast checks)
