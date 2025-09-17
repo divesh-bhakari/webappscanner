@@ -17,8 +17,6 @@
       margin: 0;
       flex-direction: column;
     }
-
-    /* Header above login card */
     .hero-text {
       text-align: center;
       margin-bottom: 20px;
@@ -31,7 +29,6 @@
       color: #bbb;
       font-size: 0.95rem;
     }
-
     .glass-card {
       background: rgba(30, 30, 30, 0.85);
       border-radius: 15px;
@@ -46,7 +43,6 @@
       transform: translateY(-5px);
       box-shadow: 0 12px 40px rgba(0,0,0,0.8);
     }
-
     .gradient-bar {
       height: 6px;
       border-radius: 5px;
@@ -59,29 +55,23 @@
       0% { background-position: 0% 50%; }
       100% { background-position: 100% 50%; }
     }
-
     .form-control {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
+      background-color: #000 !important;
       color: #fff;
+      border: 1px solid #333;
+      border-radius: 10px;
       transition: all 0.3s ease;
     }
     .form-control:focus {
       border-color: #2ecc71;
       box-shadow: 0 0 10px #2ecc71;
-      background: rgba(255,255,255,0.08);
+      background-color: #111 !important;
     }
-
-    /* Make placeholders brighter */
     ::placeholder {
-      color: #ddd !important;
+      color: #fff !important;
       opacity: 1;
       font-weight: 500;
     }
-    :-ms-input-placeholder { color: #ddd; }
-    ::-ms-input-placeholder { color: #ddd; }
-
     .btn-primary {
       background: linear-gradient(90deg, #2ecc71, #f39c12);
       border: none;
@@ -96,7 +86,6 @@
       opacity: 0.9;
       transform: scale(1.02);
     }
-
     a {
       color: #f39c12;
       text-decoration: none;
@@ -105,8 +94,6 @@
     a:hover {
       text-decoration: underline;
     }
-
-    /* Accent line like index.html */
     .accent-line {
       width: 80%;
       height: 3px;
@@ -126,15 +113,16 @@
   <div class="glass-card">
     <div class="gradient-bar"></div>
     <h2 class="mb-4">Login</h2>
+
     <form method="POST" action="{{ url_for('login') }}">
       <div class="mb-3">
-        <input type="text" name="username" class="form-control" placeholder="Enter Username" required>
+        <input type="text" name="username" class="form-control" placeholder="Enter Username" required style="color: white;">
       </div>
       <div class="mb-3">
-        <input type="password" name="password" class="form-control" placeholder="Enter Password" required>
+        <input type="password" name="password" class="form-control" placeholder="Enter Password" required style="color: white;">
       </div>
       <div class="mb-3 d-flex justify-content-center">
-<div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+        <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
     </form>

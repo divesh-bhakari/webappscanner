@@ -583,7 +583,7 @@ def index():
     return render_template('index.html', username=session['username'])
 
 
-# Registration
+# Registration 
 @app.route('/register', methods=['GET', 'POST'])
 @limiter.exempt
 def register():
@@ -593,23 +593,20 @@ def register():
         confirm_password = request.form.get('confirm_password', '').strip()
 
         if not username or not password or not confirm_password:
-            flash("Please fill all fields")
             return redirect(url_for('register'))
 
         if password != confirm_password:
-            flash("Passwords do not match")
             return redirect(url_for('register'))
 
         if username in users_db:
-            flash("Username already exists")
             return redirect(url_for('register'))
 
         hashed_pw = generate_password_hash(password)
         users_db[username] = hashed_pw
-        flash("Registration successful. Please login.")
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
 
 # Start scan (accept GET for safe redirects and POST for form submission)
 @app.route('/scan', methods=['GET', 'POST'])
