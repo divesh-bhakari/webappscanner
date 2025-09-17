@@ -15,9 +15,8 @@ import uuid
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import make_response, render_template
-from weasyprint import HTML
-import io
-import pdfkit
+
+
 
 # persistent DB
 from flask_sqlalchemy import SQLAlchemy
