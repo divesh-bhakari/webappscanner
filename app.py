@@ -769,26 +769,36 @@ def scan_result(job_id):
     detected_risk = sum(risk_weights[k] for k,v in aggregated.items() if isinstance(v,str) and ("No " not in v and "safe" not in v.lower()))
     overall_score = round(((total_risk - detected_risk)/total_risk)*100,2) if total_risk else 0
 
+    # Calculate scan duration
+    if getattr(job, 'finished_at', None):
+        duration_seconds = (job.finished_at - job.created_at).total_seconds()
+        hours, remainder = divmod(duration_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        scan_duration = f"{int(hours)}h {int(minutes)}m {int(seconds)}s"
+    else:
+        scan_duration = "Running..."
+
     csv_filename = os.path.join(CSV_FOLDER, f"scan_{job_id}.csv")
     return render_template('result.html',
                            job_id=job_id,
                            url=job.target,
                            vulnerabilities=aggregated,
-                           detailed_info ={"SQL Injection": "No SQL Injection detected.",
-    "Cross-Site Scripting (XSS)": "No XSS detected.",
-    "Directory Traversal": "No Directory Traversal detected.",
-    "Open Redirect": "No Open Redirect detected.",
-    "Clickjacking": "Possible Clickjacking detected.",
-    "Insecure HTTP Headers": "Some headers missing.",
-    "Unsafe HTTP Methods": "No unsafe HTTP methods detected.",
-    "Robots.txt Check": "No issues with robots.txt.",},
-  # keep your descriptions or pass them here
+                           detailed_info = {
+                               "SQL Injection": "No SQL Injection detected.",
+                               "Cross-Site Scripting (XSS)": "No XSS detected.",
+                               "Directory Traversal": "No Directory Traversal detected.",
+                               "Open Redirect": "No Open Redirect detected.",
+                               "Clickjacking": "Possible Clickjacking detected.",
+                               "Insecure HTTP Headers": "Some headers missing.",
+                               "Unsafe HTTP Methods": "No unsafe HTTP methods detected.",
+                               "Robots.txt Check": "No issues with robots.txt.",
+                           },
                            total_detected=total_detected,
                            total_safe=total_safe,
                            high_risk_count=high_risk_count,
                            overall_score=overall_score,
                            scan_time=job.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                           scan_duration="(background)",
+                           scan_duration=scan_duration,
                            csv_file=csv_filename,
                            invalid=False)
 
