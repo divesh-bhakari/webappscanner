@@ -118,62 +118,26 @@ with app.app_context():
 db_lock = Lock()
 
 # --------------------------
-# URL Validation + TLD expansion (improved)
+# URL Validation (kept original)
 # --------------------------
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-# Popular TLDs (expandable)
-TLD_LIST = [
-    "com", "net", "org", "info", "biz", "co", "io", "dev", "xyz", "site", "online",
-    "tech", "app", "store", "blog", "ai", "me", "in", "uk", "us", "ca", "jp", "de",
-    "fr", "au", "ru", "cn", "br", "za", "es", "it", "nl", "se", "no", "ch", "co.in",
-    "co.uk", "gov", "edu"
-]
-
-def validate_url(base_domain):
-    """
-    Validate a base domain, try multiple TLDs, return first reachable URL.
-    Returns: (url, None) if valid, or (None, error_message)
-    """
-    # Remove schema if accidentally provided
-    base_domain = re.sub(r'^https?://', '', base_domain).strip()
-    if not base_domain:
-        return None, "Empty domain provided"
-
-    # Helper: try a single URL
-    def try_url(tld):
-        url = f"http://{base_domain}.{tld}"
-        try:
-            r = requests.get(url, timeout=5, allow_redirects=True)
-            if r.status_code < 400:
-                return url, None
-            else:
-                return None, f"Website returned status code {r.status_code}"
-        except requests.exceptions.ConnectionError:
-            return None, "Website not reachable"
-        except requests.exceptions.Timeout:
-            return None, "Connection timed out"
-        except Exception as e:
-            return None, f"Error: {str(e)}"
-
-    # Use ThreadPoolExecutor to try multiple TLDs in parallel
-    valid_url = None
-    error_messages = []
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = {executor.submit(try_url, tld): tld for tld in TLD_LIST}
-        for future in as_completed(futures):
-            url, err = future.result()
-            if url:
-                valid_url = url
-                break
-            else:
-                error_messages.append(err)
-
-    if valid_url:
-        return valid_url, None
-    else:
-        return None, f"No reachable website found. Details: {error_messages[:5]}"
-
+def validate_url(url):
+    if not url.startswith(("http://", "https://")):
+        url = "http://" + url
+    parsed = urlparse(url)
+    if not parsed.netloc:
+        return None, "Invalid URL format"
+    try:
+        r = requests.get(url, timeout=5, allow_redirects=True)
+        if r.status_code < 400:
+            return url, None
+        else:
+            return None, f"Website returned status code {r.status_code}"
+    except requests.exceptions.ConnectionError:
+        return None, "Website not reachable"
+    except requests.exceptions.Timeout:
+        return None, "Connection timed out"
+    except Exception as e:
+        return None, f"Error: {str(e)}"
 
 # --------------------------
 # SCANNERS (unchanged, copied from your code)
