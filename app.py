@@ -346,7 +346,7 @@ def fast_scan_single_url(url, session=None, timeout_short=5, timeout_mid=10):
         for h in ["content-security-policy", "strict-transport-security", "x-content-type-options", "x-frame-options"]:
             if h not in headers:
                 missing.append(h)
-        results["Insecure HTTP Headers"] = "OK" if not missing else f"Missing headers: {missing}"
+        results["Insecure HTTP Headers"] = "All required headers present" if not missing else f"Missing headers: {missing}"
     except Exception:
         results["Insecure HTTP Headers"] = "Could not fetch headers"
 
@@ -357,7 +357,7 @@ def fast_scan_single_url(url, session=None, timeout_short=5, timeout_mid=10):
         if not x_frame or "frame-ancestors" not in csp.lower():
             results["Clickjacking"] = "Possible Clickjacking (insecure headers)"
         else:
-            results["Clickjacking"] = "OK"
+            results["Clickjacking"] = "Clickjacking protection active (safe)"
     except Exception:
         results["Clickjacking"] = "Could not check clickjacking"
 
