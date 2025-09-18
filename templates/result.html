@@ -104,44 +104,45 @@ body {
 <div class="container">
 
   <!-- Vulnerability Results -->
-  <section class="glass-card">
-    <h2 class="section-title">Vulnerability Results & Overview</h2>
-    <p>You scanned: <strong>{{ url }}</strong> | Scan Time: <strong>{{ scan_time }}</strong></p>
-    <div class="gradient-bar"></div>
+<section class="glass-card">
+  <h2 class="section-title">Vulnerability Results & Overview</h2>
+  <p>You scanned: <strong>{{ url }}</strong> | Scan Time: <strong>{{ scan_time }}</strong></p>
+  <div class="gradient-bar"></div>
 
-    <div class="row mt-3">
-      <div class="col-lg-7">
-        <h4>Status Table</h4>
-        <table class="table table-dark table-striped">
-          <thead>
-            <tr>
-              <th>Vulnerability</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for vuln, status in vulnerabilities.items() %}
-            <tr>
-              <td>{{ vuln }}</td>
-              <td>
-                {% if "No" in status or "safe" in status %}
-                  <span class="status-ok">&#9989; {{ status }}</span>
-                {% else %}
-                  <span class="status-fail">&#10060; {{ status }}</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="col-lg-5 chart-container text-center">
-        <canvas id="pieChart"></canvas>
-        <p style="margin-top:10px;">Detected vs Safe Vulnerabilities</p>
-        <a href="{{ url_for('download_csv', job_id=job_id) }}" class="btn btn-primary">Download CSV</a>
-      </div>
+  <div class="row mt-3">
+    <div class="col-lg-7">
+      <h4>Status Table</h4>
+      <table class="table table-dark table-striped">
+        <thead>
+          <tr>
+            <th>Vulnerability</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vuln, status in vulnerabilities.items() %}
+          <tr>
+            <td>{{ vuln }}</td>
+            <td>
+              {% if "No" in status or "safe" in status or "secure" in status or "protection active" in status %}
+                <span class="status-ok">&#9989; {{ status }}</span>
+              {% else %}
+                <span class="status-fail">&#10060; {{ status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </section>
+    <div class="col-lg-5 chart-container text-center">
+      <canvas id="pieChart"></canvas>
+      <p style="margin-top:10px;">Detected vs Safe Vulnerabilities</p>
+      <a href="{{ url_for('download_csv', job_id=job_id) }}" class="btn btn-primary">Download CSV</a>
+    </div>
+  </div>
+</section>
+
 
   <!-- Scan Summary -->
   <section class="glass-card">
