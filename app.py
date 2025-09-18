@@ -232,31 +232,31 @@ def open_redirect_scan(url):
         pass
     return "No Open Redirect found"
 
-# Clickjacking
+import requests
+
+# --- Clickjacking ---
 def clickjacking_scan(url):
     try:
-        r = requests.get(url, timeout=5)
+        r = requests.get(url, timeout=5, allow_redirects=True)
         headers = {k.lower(): v for k, v in r.headers.items()}
-        x_frame = headers.get('x-frame-options', None)
-        csp = headers.get('content-security-policy', '')
-        vulnerable = False
-        reasons = []
-        if not x_frame:
-            vulnerable = True
-            reasons.append("Missing X-Frame-Options header")
-        elif x_frame.lower() not in ["deny", "sameorigin"]:
-            vulnerable = True
-            reasons.append(f"X-Frame-Options is set to '{x_frame}'")
-        if "frame-ancestors" not in csp.lower():
-            vulnerable = True
-            reasons.append("Missing CSP frame-ancestors directive")
-        if vulnerable:
-            return "Possible Clickjacking vulnerability: " + "; ".join(reasons)
-    except:
-        pass
-    return "No Clickjacking found"
+        x_frame = headers.get('x-frame-options', '')
+        csp = headers.get('content-security-policy', '').lower()
 
-# Insecure Headers
+        # Check XFO
+        has_xfo = x_frame.lower() in ["deny", "sameorigin"]
+
+        # Check CSP
+        has_csp_frame = "frame-ancestors" in csp
+
+        if has_xfo or has_csp_frame:
+            return "No Clickjacking found"
+        else:
+            return "Possible Clickjacking vulnerability: Missing X-Frame-Options and CSP frame-ancestors"
+    except Exception as e:
+        return f"Error during clickjacking scan: {e}"
+
+
+# --- Insecure Headers ---
 important_headers = {
     "Content-Security-Policy": "Helps prevent XSS",
     "Strict-Transport-Security": "Forces HTTPS",
@@ -270,24 +270,35 @@ important_headers = {
 def insecure_headers_scan(url):
     result = {"missing": [], "misconfigured": [], "present": []}
     try:
-        r = requests.get(url, timeout=5)
+        r = requests.get(url, timeout=5, allow_redirects=True)
         headers = {k.lower(): v for k, v in r.headers.items()}
+
+        https_mode = r.url.startswith("https://")
+
         for h in important_headers:
-            if h.lower() not in headers:
+            h_lower = h.lower()
+            if h_lower not in headers:
+                # Don’t require HSTS unless HTTPS
+                if h == "Strict-Transport-Security" and not https_mode:
+                    continue
                 result["missing"].append(h)
             else:
-                value = headers[h.lower()]
+                value = headers[h_lower]
                 result["present"].append(f"{h}: {value}")
+
+                # Check misconfigs
                 if h == "X-Frame-Options" and value.lower() not in ["deny", "sameorigin"]:
                     result["misconfigured"].append(f"{h}: {value}")
                 if h == "Content-Security-Policy" and "*" in value:
                     result["misconfigured"].append(f"{h}: {value}")
+
         if result["missing"] or result["misconfigured"]:
             return f"Missing: {result['missing']} | Misconfigured: {result['misconfigured']}"
         else:
             return "All important headers present"
-    except:
-        return "Error fetching headers"
+    except Exception as e:
+        return f"Error fetching headers: {e}"
+
 
 # Unsafe HTTP Methods
 def improved_http_method_scan(url):
