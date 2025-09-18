@@ -120,19 +120,22 @@ body {
           </tr>
         </thead>
         <tbody>
-          {% for vuln, status in vulnerabilities.items() %}
-          <tr>
-            <td>{{ vuln }}</td>
-            <td>
-              {% if "No" in status or "safe" in status or "secure" in status or "protection active" in status %}
-                <span class="status-ok">&#9989; {{ status }}</span>
-              {% else %}
-                <span class="status-fail">&#10060; {{ status }}</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
+  {% for vuln, status in vulnerabilities.items() %}
+  <tr>
+    <td>{{ vuln }}</td>
+    <td>
+      {% set s = status.lower() %}
+      {# show ❌ if status explicitly indicates a problem #}
+      {% if 'missing' in s or 'possible' in s or 'insecure' in s or 'error' in s or 'vulnerable' in s %}
+        <span class="status-fail">&#10060; {{ status }}</span>
+      {% else %}
+        <span class="status-ok">&#9989; {{ status }}</span>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
       </table>
     </div>
     <div class="col-lg-5 chart-container text-center">
